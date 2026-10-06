@@ -22,9 +22,16 @@ export const app = {
     /** Cookie that remembers the language of a signed-out visitor or a shared device. */
     cookie: "locale",
     defaultLocale: "en",
-    locales: ["en"],
+    locales: ["en", "es", "de", "fr", "pt", "zh"],
     /** Each language written in itself, for the language switcher. */
-    names: { en: "English" },
+    names: {
+      de: "Deutsch",
+      en: "English",
+      es: "Español",
+      fr: "Français",
+      pt: "Português",
+      zh: "中文",
+    },
   },
   /** Paths on the web app, and the support address. Emails turn paths into full links. */
   links: {

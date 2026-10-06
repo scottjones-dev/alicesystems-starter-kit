@@ -1,0 +1,11 @@
+{
+  "CONFLICT": "Das steht im Widerspruch zu etwas, das bereits gespeichert ist. Bitte aktualisiere die Seite und versuche es erneut.",
+  "FORBIDDEN": "Dazu hast du keine Berechtigung.",
+  "INTERNAL": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+  "NOT_FOUND": "Wir konnten das nicht finden.",
+  "RATE_LIMITED": "Zu viele Versuche. Bitte warte einen Moment und versuche es erneut.",
+  "STALE_VERSION": "Das wurde an anderer Stelle geändert. Lade die Seite neu, um die neueste Version zu sehen, und versuche es dann erneut.",
+  "UNAUTHORIZED": "Bitte melde dich an, um fortzufahren.",
+  "UNAVAILABLE": "Ein Dienst, auf den wir angewiesen sind, ist derzeit nicht verfügbar. Bitte versuche es in ein paar Minuten erneut.",
+  "VALIDATION_FAILED": "Einige Angaben sind ungültig. Bitte überprüfe sie und versuche es erneut."
+}

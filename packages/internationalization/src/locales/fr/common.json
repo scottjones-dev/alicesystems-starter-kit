@@ -1,0 +1,18 @@
+{
+  "actions": {
+    "back": "Retour",
+    "cancel": "Annuler",
+    "goHome": "Aller à la page d'accueil",
+    "save": "Enregistrer",
+    "tryAgain": "Réessayer"
+  },
+  "language": {
+    "label": "Langue"
+  },
+  "theme": {
+    "dark": "Sombre",
+    "label": "Thème",
+    "light": "Clair",
+    "system": "Système"
+  }
+}

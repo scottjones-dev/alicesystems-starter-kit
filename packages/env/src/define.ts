@@ -7,7 +7,12 @@ export const ENVIRONMENTS = ["dev", "test", "staging", "prod"] as const;
 export type Environment = (typeof ENVIRONMENTS)[number];
 
 /** The Infisical folder a key lives in. One folder per runtime that reads it. */
-export const FOLDERS = ["/api", "/web", "/native"] as const;
+export const FOLDERS = [
+  "/api",
+  "/web",
+  "/native",
+  "/internationalization",
+] as const;
 export type Folder = (typeof FOLDERS)[number];
 
 /** Everything we know about one environment variable. It is written once, here. */

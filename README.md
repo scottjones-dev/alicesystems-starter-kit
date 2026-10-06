@@ -13,6 +13,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `packages/db` | Drizzle on Postgres: client, column helpers, migrations, test database helper (`@repo/db`). |
 | `infra/postgres` | Local PostgreSQL 18 in Docker. |
 | `packages/config` | Global app constants and the light and dark colour theme, with generated web and native stylesheets (`@repo/config`). |
+| `packages/internationalization` | Translation catalogs for six languages, language choice and formatting (`@repo/internationalization`). |
 | `apps/` | Deployable apps (web, api, native...). Empty for now. |
 | `packages/` | Shared code used by apps. Empty for now. |
 | `pnpm-workspace.yaml` | Tells pnpm that `apps/*` and `packages/*` are workspaces. |

@@ -1,0 +1,37 @@
+---
+title: Internationalization
+description: "Translation catalogs, language choice and formatting for server, web and native."
+type: reference
+summary: "Translation catalogs for six languages, the language-choice rules, and formatting for dates, numbers, money and lists. One catalog format for server, web and native."
+related:
+  - /docs/structure
+  - /docs/packages/config
+  - /docs/packages/emails
+---
+
+## What it is
+
+`@repo/internationalization` holds every sentence a person reads, in six languages (English, Spanish, German, French, Portuguese and Chinese), plus the small amount of logic around them: picking a language, looking up text, and formatting dates, numbers, money and lists. It uses i18next, with one JSON format on every platform.
+
+## Requirements
+
+- Every sentence a person reads comes from a catalog, so it is translated once and used by the API, emails, the website and the app.
+- A person never sees a raw key: anything missing falls back to English.
+- Adding a language or a namespace is one step, and a test says if it is incomplete.
+- Money, dates and numbers are written the way the person's language writes them.
+
+## Design
+
+- **Catalogs:** `src/locales/<language>/<namespace>.json`. English is the source. A namespace is one area (`common`, `errors`; `emails` arrives with the emails package), so a screen loads only what it needs.
+- **The language list lives in `@repo/config`** (`app.i18n.locales`). A test fails if the folders in `src/locales` and that list disagree.
+- **`resources.ts` is generated** (`pnpm catalogs:generate`). Bundlers and Node need each JSON import spelled out; the generator writes the list from the folders, and a test fails if the file is stale.
+- **`getT(locale, namespace)`** for server code, typed from the English catalogs (`t("errors:NOT_FOUND")`). Web and native build their own i18next instance from `i18nextOptions()`.
+- **`resolveLocale`** picks the language in a fixed order: the signed-in user's saved language, the cookie, the `Accept-Language` header, the device language, then English.
+- **Formatting:** `formatDate`, `formatDateTime`, `formatNumber`, `formatList` and `formatMoney`. Money is a whole number of minor units (pence, cents); the currency decides the decimals, so GBP, JPY and BHD are all right.
+- **Checks** (`pnpm catalogs:check`, also in the tests): every language has every key, plural forms match the language's grammar (Chinese has one, English two, Polish four), `{{placeholders}}` match the English text, and no catalog holds markup or an email address. The checks take catalogs as arguments, so tests prove them on made-up languages.
+
+## Trade-offs
+
+- **The shipped translations are machine-written and have not been checked by native speakers.** They are short (button labels and error messages), but check them before a platform goes live. Portuguese is written for Brazil, and German uses the informal "du".
+- **`languine.json` and `pnpm translate` are set up but untested.** Languine needs an account key (`LANGUINE_API_KEY`), and the starter-kit this was based on reported its server failing. Until it works, write translations by hand; `catalogs:check` blocks incomplete ones either way.
+- **All catalogs are bundled.** No language waits for a network request, at the cost of bundle size. That is fine at this size; revisit if catalogs grow into the megabytes.

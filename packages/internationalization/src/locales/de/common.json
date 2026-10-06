@@ -1,0 +1,18 @@
+{
+  "actions": {
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "goHome": "Zur Startseite",
+    "save": "Speichern",
+    "tryAgain": "Erneut versuchen"
+  },
+  "language": {
+    "label": "Sprache"
+  },
+  "theme": {
+    "dark": "Dunkel",
+    "label": "Design",
+    "light": "Hell",
+    "system": "System"
+  }
+}

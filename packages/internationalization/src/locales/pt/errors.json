@@ -1,0 +1,11 @@
+{
+  "CONFLICT": "Isso entra em conflito com algo que já está salvo. Atualize a página e tente novamente.",
+  "FORBIDDEN": "Você não tem permissão para fazer isso.",
+  "INTERNAL": "Algo deu errado. Tente novamente.",
+  "NOT_FOUND": "Não conseguimos encontrar isso.",
+  "RATE_LIMITED": "Muitas tentativas. Aguarde um momento e tente novamente.",
+  "STALE_VERSION": "Isso foi alterado em outro lugar. Recarregue para ver a versão mais recente e tente novamente.",
+  "UNAUTHORIZED": "Entre na sua conta para continuar.",
+  "UNAVAILABLE": "Um serviço do qual dependemos está indisponível no momento. Tente novamente em alguns minutos.",
+  "VALIDATION_FAILED": "Algumas informações não são válidas. Verifique-as e tente novamente."
+}

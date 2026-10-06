@@ -1,0 +1,32 @@
+{
+  "name": "@repo/internationalization",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./core": "./src/core.ts",
+    "./format": "./src/format.ts",
+    "./resolve": "./src/resolve.ts",
+    "./resources": "./src/resources.ts"
+  },
+  "scripts": {
+    "catalogs:check": "tsx src/scripts/check.ts",
+    "catalogs:generate": "tsx src/scripts/generate-resources.ts",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "translate": "tsx src/scripts/translate.ts"
+  },
+  "dependencies": {
+    "@repo/config": "workspace:*",
+    "@repo/env": "workspace:*",
+    "i18next": "^26.4.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/errors": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3"
+  }
+}

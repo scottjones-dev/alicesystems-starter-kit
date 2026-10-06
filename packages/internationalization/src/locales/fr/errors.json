@@ -1,0 +1,11 @@
+{
+  "CONFLICT": "Cela entre en conflit avec des données déjà enregistrées. Actualisez la page et réessayez.",
+  "FORBIDDEN": "Vous n'avez pas l'autorisation de faire cela.",
+  "INTERNAL": "Une erreur s'est produite. Veuillez réessayer.",
+  "NOT_FOUND": "Nous n'avons pas pu trouver cela.",
+  "RATE_LIMITED": "Trop de tentatives. Patientez un instant, puis réessayez.",
+  "STALE_VERSION": "Cela a été modifié ailleurs. Rechargez la page pour voir la dernière version, puis réessayez.",
+  "UNAUTHORIZED": "Veuillez vous connecter pour continuer.",
+  "UNAVAILABLE": "Un service dont nous dépendons est indisponible pour le moment. Veuillez réessayer dans quelques minutes.",
+  "VALIDATION_FAILED": "Certaines informations ne sont pas valides. Vérifiez-les et réessayez."
+}

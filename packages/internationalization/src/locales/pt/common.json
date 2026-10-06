@@ -1,0 +1,18 @@
+{
+  "actions": {
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "goHome": "Ir para a página inicial",
+    "save": "Salvar",
+    "tryAgain": "Tentar novamente"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "theme": {
+    "dark": "Escuro",
+    "label": "Tema",
+    "light": "Claro",
+    "system": "Sistema"
+  }
+}

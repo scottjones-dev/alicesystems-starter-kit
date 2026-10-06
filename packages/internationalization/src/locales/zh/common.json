@@ -1,0 +1,18 @@
+{
+  "actions": {
+    "back": "返回",
+    "cancel": "取消",
+    "goHome": "返回首页",
+    "save": "保存",
+    "tryAgain": "重试"
+  },
+  "language": {
+    "label": "语言"
+  },
+  "theme": {
+    "dark": "深色",
+    "label": "主题",
+    "light": "浅色",
+    "system": "跟随系统"
+  }
+}
