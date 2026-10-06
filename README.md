@@ -9,6 +9,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `packages/typescript-config` | Shared `tsconfig` presets (`@repo/typescript-config`). |
 | `packages/env` | Typed, validated environment variables plus Infisical seeding and local setup (`@repo/env`). |
 | `env.registry.ts` | Lists the packages whose environment keys the `@repo/env` tools read. |
+| `packages/errors` | The error codes, `AppError` and JSON error body every API response uses (`@repo/errors`). |
 | `apps/` | Deployable apps (web, api, native...). Empty for now. |
 | `packages/` | Shared code used by apps. Empty for now. |
 | `pnpm-workspace.yaml` | Tells pnpm that `apps/*` and `packages/*` are workspaces. |

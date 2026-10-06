@@ -4,7 +4,7 @@ Typed, validated environment variables, defined once, plus the tools that fill t
 
 ## Why it exists
 
-Bad or missing config should fail at startup with a clear message, not deep inside a request. And a key should be added in **one place**: from a single definition this package derives the validation, the Infisical seed, the local `.env` and `.env.example`. The reasoning is in [`docs/env.md`](../../docs/env.md).
+Bad or missing config should fail at startup with a clear message, not deep inside a request. And a key should be added in **one place**: from a single definition this package derives the validation, the Infisical seed, the local `.env` and `.env.example`. The reasoning is in [`docs/content/docs/env.md`](../../docs/content/docs/env.md).
 
 ## What's inside
 

@@ -1,0 +1,22 @@
+{
+  "name": "@repo/errors",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./app-error": "./src/app-error.ts",
+    "./codes": "./src/codes.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "vitest": "^5.0.3"
+  }
+}
