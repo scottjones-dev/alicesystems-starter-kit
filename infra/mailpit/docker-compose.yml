@@ -1,0 +1,15 @@
+name: starterkit
+
+services:
+  mailpit:
+    image: axllent/mailpit
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: ["CMD", "/mailpit", "readyz"]
+      timeout: 3s
+    ports:
+      # SMTP: the app sends here in development.
+      - "1025:1025"
+      # Web inbox and API: http://localhost:8025
+      - "8025:8025"

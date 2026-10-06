@@ -1,0 +1,50 @@
+---
+title: Notifications
+description: "notify() for email today, push (Expo) for chosen events, SMS later, delivered through Novu in production and to a local inbox in development."
+type: reference
+summary: "One typed notify() over swappable transports: Novu for staging and production, SMTP to Mailpit in development, a log transport for tests. Also the Novu bridge and Expo device tokens."
+related:
+  - /docs/structure
+  - /docs/packages/emails
+  - /docs/infra/mailpit
+  - /docs/infra/novu
+---
+
+## What it is
+
+`@repo/notifications` is how the rest of the code tells a person something. Callers say what happened and who to tell; this package decides how it is delivered.
+
+```ts
+void notify("magic-link", {
+  to: { email: user.email, locale: user.locale, subscriberId: user.id },
+  payload: { expiresIn: { minutes: 15 }, url },
+  idempotencyKey: `magic-link:${user.id}:${attemptId}`, // optional: no double send on a retry
+});
+```
+
+## Requirements
+
+- Auth and the API never know which provider, channel or template is behind a message.
+- A missing or malformed field is a compile error, and refused at run time before anything leaves.
+- `notify()` never throws and never logs a payload (it holds one-time links and addresses), so it is safe in an auth callback.
+- A misconfigured production fails at **startup**, never by silently dropping sign-up emails.
+- Developing needs no account: sign up on your machine and read the email in a local inbox.
+
+## Design
+
+- **One catalog** (`events.ts`): each notification is an email template from `@repo/emails` plus its data schema, whether the user may switch it off (`critical`), and an optional push message. The workflows, the typed `notify()` and the tests all read it. A test fails if an email template has no event, or the reverse.
+- **Transports** (`transports.ts`) are how a notification leaves, chosen once at startup by `NOTIFICATIONS_TRANSPORT`:
+  - `novu`, for staging and production: `notify()` triggers a Novu workflow; Novu calls our **bridge** (`/api/novu`, a signed Hono handler) to render the email with `@repo/emails`, and delivers it through the email integration set up in Novu's dashboard. Novu is the queue and retry layer, so a provider outage never breaks sign-up.
+  - `smtp`, for development: `notify()` renders the email itself and sends it to **Mailpit**, a local inbox at <http://localhost:8025>. No account, works offline.
+  - `log`, for tests: records what would have been sent.
+- **Production only accepts `novu`**, and `novu` needs `NOVU_SECRET_KEY`. `selectTransport` throws at startup otherwise.
+- **Push (Expo)** is a second step in the same workflow for events that define a push message, and `registerDevice` / `unregisterDevice` keep a user's Expo tokens on their Novu subscriber (max 100). No current event sends push, so this is built and tested but unused until a platform adds one.
+- **People without an account** (an invitee) have no user id, so their Novu subscriber id is made from their address.
+- **The environment's web address** (`WEB_ORIGIN`) is read once, where `notify()` is built, and passed to the email so its footer links point at the right environment.
+
+## Trade-offs
+
+- **Development and production take different paths** (SMTP versus Novu), so the Novu path is not exercised on a laptop. It is covered by unit tests (the trigger call, the workflow definitions through Novu's own `discover()`, the bridge's health check), but a real send needs a Novu account and `pnpm novu:tunnel`. Test it once before launch.
+- **Novu Cloud cannot reach a Mailpit on your machine**, which is why development bypasses Novu instead of pointing Novu's email step at Mailpit. Self-hosting Novu locally (MongoDB, Redis and its own services) would give one code path but is heavy; it can be added later as another transport setup.
+- **Novu stores recipient addresses and payloads**, including one-time links. Mention it in the privacy notice, and check the retention settings in Novu's dashboard.
+- **Not built yet:** SMS, an in-app feed (Novu's inbox can supply one), security notices (password changed, new location) and user notification preferences.

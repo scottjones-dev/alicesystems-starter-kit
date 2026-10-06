@@ -33,6 +33,7 @@ export const keys = defineKeys({
     hint: "Neon or Supabase dashboard",
     local: "postgres://postgres:postgres@localhost:5432/starterkit", // for setup:local
     // auto: (environment) => "...", // optional: a value we can fill in ourselves
+    // requiredIn: ["staging", "prod"], // optional: the schema allows it unset, but these environments refuse to start without it
   },
 });
 ```

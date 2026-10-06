@@ -19,4 +19,13 @@ export const keys = defineKeys({
     folder: "/api",
     schema: z.string().optional(),
   },
+  WEB_ORIGIN: {
+    auto: (environment) =>
+      environment === "dev" ? "http://localhost:3000" : undefined,
+    description:
+      "Origin of the web app (scheme and host, no path). Emails build their links from it; auth allows it for sign-in redirects and passkeys.",
+    folder: "/api",
+    hint: "The deployed web URL (https://...)",
+    schema: z.url(),
+  },
 });

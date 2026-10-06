@@ -25,6 +25,12 @@ const sample = [
       local: "postgres://localhost/db",
       schema: z.url(),
     },
+    NOVU_KEY: {
+      description: "Needed wherever Novu is used",
+      folder: "/api",
+      requiredIn: ["staging", "prod"],
+      schema: z.string().optional(),
+    },
     SECRET: {
       auto: () => "generated",
       description: "A signing secret",
@@ -52,7 +58,7 @@ describe("flattenKeys", () => {
       flattenKeys(sample)
         .map(({ key }) => key)
         .sort()
-    ).toEqual(["DATABASE_URL", "SECRET", "SENTRY_DSN", "SITE_URL"]);
+    ).toEqual(["DATABASE_URL", "NOVU_KEY", "SECRET", "SENTRY_DSN", "SITE_URL"]);
   });
 
   it("refuses a key defined twice", () => {
@@ -74,7 +80,16 @@ describe("buildSeedPlan", () => {
 
   it("asks a human for URLs outside dev", () => {
     const keys = buildSeedPlan(sample, "prod").manual.map(({ key }) => key);
-    expect(keys).toEqual(["DATABASE_URL", "SITE_URL"]);
+    expect(keys).toEqual(["DATABASE_URL", "NOVU_KEY", "SITE_URL"]);
+  });
+
+  it("asks a human for a key the app needs in some environments, only there", () => {
+    const manualKeys = (environment: (typeof ENVIRONMENTS)[number]) =>
+      buildSeedPlan(sample, environment).manual.map(({ key }) => key);
+    expect(manualKeys("dev")).not.toContain("NOVU_KEY");
+    expect(manualKeys("test")).not.toContain("NOVU_KEY");
+    expect(manualKeys("staging")).toContain("NOVU_KEY");
+    expect(manualKeys("prod")).toContain("NOVU_KEY");
   });
 
   it("never mentions optional keys that have no value", () => {
@@ -135,6 +150,12 @@ describe("buildExample", () => {
   it("shows where to get a key and its local value", () => {
     expect(text).toContain(
       "# Postgres connection string Where: Neon dashboard\nDATABASE_URL=postgres://localhost/db"
+    );
+  });
+
+  it("says where a key that is only sometimes optional is required", () => {
+    expect(text).toContain(
+      "# Needed wherever Novu is used Required in staging, prod; optional elsewhere.\nNOVU_KEY="
     );
   });
 

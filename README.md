@@ -15,6 +15,8 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `packages/config` | Global app constants and the light and dark colour theme, with generated web and native stylesheets (`@repo/config`). |
 | `packages/internationalization` | Translation catalogs for six languages, language choice and formatting (`@repo/internationalization`). |
 | `packages/emails` | Typed React email templates rendered to HTML and plain text, in the recipient's language (`@repo/emails`). |
+| `packages/notifications` | `notify()` over swappable transports: Novu in production, a local Mailpit inbox in development (`@repo/notifications`). |
+| `infra/mailpit` | Local mail inbox in Docker. |
 | `apps/` | Deployable apps (web, api, native...). Empty for now. |
 | `packages/` | Shared code used by apps. Empty for now. |
 | `pnpm-workspace.yaml` | Tells pnpm that `apps/*` and `packages/*` are workspaces. |

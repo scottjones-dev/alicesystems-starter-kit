@@ -1,0 +1,39 @@
+{
+  "name": "@repo/notifications",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./bridge": "./src/bridge.ts",
+    "./devices": "./src/devices.ts",
+    "./events": "./src/events.ts",
+    "./keys": "./src/keys.ts",
+    "./notify": "./src/instance.ts",
+    "./transports": "./src/transports.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run --exclude **/*.integration.test.ts",
+    "test:integration": "vitest run integration",
+    "tunnel": "tsx src/scripts/dev.ts"
+  },
+  "dependencies": {
+    "@novu/api": "^3.19.1",
+    "@novu/framework": "^2.14.0",
+    "@repo/config": "workspace:*",
+    "@repo/emails": "workspace:*",
+    "@repo/env": "workspace:*",
+    "@repo/internationalization": "workspace:*",
+    "hono": "^4.13.13",
+    "nodemailer": "^10.0.15",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "@types/nodemailer": "^8.0.2",
+    "novu": "^2.21.3",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3"
+  }
+}

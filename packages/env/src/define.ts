@@ -25,6 +25,12 @@ export interface KeyDef {
   hint?: string;
   /** Value for `pnpm setup:local`. Falls back to the `auto` value for dev. */
   local?: string;
+  /**
+   * Environments where the app refuses to start without this key even though the schema
+   * allows it to be unset (for example a Novu key, needed wherever the novu transport is
+   * used). The seed lists it as needing a real value there, and `.env.example` says so.
+   */
+  requiredIn?: readonly Environment[];
   /** Validation. A schema that accepts `undefined` makes the key optional. */
   schema: ZodType;
 }

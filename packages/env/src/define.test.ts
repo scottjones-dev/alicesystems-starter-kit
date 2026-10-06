@@ -122,13 +122,25 @@ describe("randomSecret", () => {
 });
 
 describe("base keys", () => {
+  const WEB_ORIGIN = "https://app.example.com";
+
   it("defaults NODE_ENV to development", () => {
     vi.stubEnv("NODE_ENV", "");
+    vi.stubEnv("WEB_ORIGIN", WEB_ORIGIN);
     expect(base.env().NODE_ENV).toBe("development");
   });
 
   it("refuses an unknown NODE_ENV", () => {
     vi.stubEnv("NODE_ENV", "banana");
+    vi.stubEnv("WEB_ORIGIN", WEB_ORIGIN);
     expect(() => base.env()).toThrow(INVALID);
+  });
+
+  it("requires WEB_ORIGIN, as a URL", () => {
+    expect(() => base.env()).toThrow(INVALID);
+    vi.stubEnv("WEB_ORIGIN", "not a url");
+    expect(() => base.env()).toThrow(INVALID);
+    vi.stubEnv("WEB_ORIGIN", WEB_ORIGIN);
+    expect(base.env().WEB_ORIGIN).toBe(WEB_ORIGIN);
   });
 });

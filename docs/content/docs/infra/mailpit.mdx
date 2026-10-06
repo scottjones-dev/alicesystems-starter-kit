@@ -1,0 +1,33 @@
+---
+title: Mailpit
+description: "Local mail catcher: every email sent in development lands here instead of a real inbox."
+type: reference
+summary: "A local SMTP server with a web inbox. In development the smtp transport sends here, so sign-up and notification emails can be read without any account."
+related:
+  - /docs/infra/novu
+  - /docs/packages/notifications
+  - /docs/packages/emails
+---
+
+## What it is
+
+[Mailpit](https://mailpit.axllent.org) in Docker (`infra/mailpit`). It accepts mail on SMTP port `1025` and shows it in a web inbox at <http://localhost:8025>. Nothing leaves your machine.
+
+## Use it
+
+```bash
+pnpm infra:mailpit:up     # start and wait until healthy (pnpm infra:up starts Postgres too)
+pnpm infra:mailpit:down
+```
+
+Then run the app with `NOTIFICATIONS_TRANSPORT=smtp` (the default in development; `pnpm setup:local` writes it) and open the inbox.
+
+## Design
+
+- **Development bypasses Novu.** Novu Cloud sends from its own servers and cannot reach `localhost:1025`, so pointing Novu's email step at Mailpit does not work unless Novu itself is self-hosted. Instead the `smtp` transport in `@repo/notifications` renders the email with `@repo/emails` and sends it straight to Mailpit. The email is the same one Novu would send; only the delivery differs.
+- **The integration test uses it:** `pnpm --filter @repo/notifications test:integration` sends a real email and reads it back from Mailpit's API. Each run uses its own recipient address and deletes only its own messages, so your inbox is left alone.
+- **Messages are not kept** across a restart of the container, which is what you want from a scratch inbox.
+
+## Trade-offs
+
+- Mailpit shows what was sent, not how a real mail client renders it. Check the look in real clients (Gmail, Outlook, Apple Mail) before launch.
