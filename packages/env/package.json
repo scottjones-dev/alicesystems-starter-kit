@@ -5,12 +5,13 @@
   "type": "module",
   "exports": {
     "./base": "./src/base.ts",
-    "./create": "./src/create-env.ts"
+    "./define": "./src/define.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "secrets:seed": "tsx src/seed/seed.ts",
-    "setup:local": "tsx src/local/setup.ts",
+    "env:example": "tsx src/cli.ts example",
+    "secrets:seed": "tsx src/cli.ts seed",
+    "setup:local": "tsx src/cli.ts local",
     "test": "vitest run"
   },
   "dependencies": {

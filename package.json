@@ -8,6 +8,7 @@
     "check": "ultracite check",
     "check-types": "turbo run check-types",
     "dev": "turbo run dev",
+    "env:example": "pnpm --filter @repo/env env:example",
     "fix": "ultracite fix",
     "prepare": "husky",
     "secrets:push": "infisical secrets set --env=dev --path=/api --file=.env",

@@ -2,24 +2,40 @@
 
 ## Requirements
 - A missing or malformed variable must stop the app at startup with the variable's name, not fail inside a request.
-- Secrets live in Infisical (project `starterkit`). Nobody should need an Infisical account to run the project locally.
+- Secrets live in Infisical (project `starterkit`). Nobody needs an Infisical account to run the project locally.
 - Packages are optional. Removing one must not leave orphan keys behind.
 - Server secrets must never reach a browser or mobile bundle.
+- Adding a key must be a change in **one place**.
 
 ## Design
-1. **`@repo/env`** holds only the shared pieces:
-   - `create-env.ts`: `createServerEnv(shape)`, a thin wrapper over `@t3-oss/env-core` with the repo's defaults (empty string counts as unset, `SKIP_ENV_VALIDATION` turns validation off for CI builds).
-   - `base.ts`: the keys every runtime has (`NODE_ENV`).
-   - `seed/`: fills a new Infisical environment with every key we can generate. It never overwrites a key.
-   - `local/`: writes a root `.env` for running on one machine with no accounts.
-2. **Each future package owns its keys** in its own `keys.ts` (the next-forge idea): `db` declares `DATABASE_URL`, `auth` declares `BETTER_AUTH_SECRET`. An app combines the ones it needs with t3's `extends`.
-3. **Seed and local setup grow with the packages.** When a package adds a key, it adds that key to `seed/plan.ts` and `local/plan.ts` and to the root `.env.example`, in the same change. Docker Postgres and S3 defaults arrive with the `db` and `storage` packages, not before.
-4. **Fail fast in production.** A value that would silently fall back to a development default (a localhost URL) is required in production instead.
+Every variable is defined once, next to the code that uses it, with `defineKeys`:
+
+```ts
+DATABASE_URL: {
+  schema: z.url(),                 // validation
+  folder: "/api",                  // Infisical folder it lives in
+  description: "Postgres connection string",
+  hint: "Neon or Supabase dashboard", // where a human gets it
+  local: "postgres://postgres:postgres@localhost:5432/starterkit",
+  auto: (environment) => ...,      // optional: a value we can fill in ourselves
+}
+```
+
+From the definitions we derive:
+1. **Validation**: the zod schemas go to t3-env (`keys.env()`).
+2. **The Infisical seed**: a key with an `auto` value is generated; a required key without one is listed as "needs a real value" with its hint. A key whose schema accepts "unset" is never nagged about.
+3. **The local `.env`** (`setup:local`): `local`, or else the `auto` value for dev.
+4. **`.env.example`**: generated, and a test fails if the committed file is out of date.
+
+A root `env.registry.ts` lists the packages' definitions (one line per package, not per key). The tools read it; packages never import the tools, so there is no dependency cycle.
+
+## Environments
+`dev`, `staging` and `prod` exist in every Infisical project. `test` is a custom environment (create it in Infisical with the slug `test`) for a shared, deployed test copy. Unit tests do not use Infisical: they use fake values in the test itself. Seeding `prod` needs `--yes`.
 
 ## Trade-offs
-- Colocated `keys.ts` means a package is self-contained, but the full list of variables is spread across packages. `.env.example` is the single readable list, so keeping it current is part of every change.
-- `env-core` is used (not `env-nextjs`) so the package has no Next.js dependency. Next.js apps add `env-nextjs` themselves for their public keys.
-- Seeding wraps the `infisical` CLI instead of its API, so it needs the CLI installed and `infisical login`. That keeps secrets out of our code and process list.
+- This is a small abstraction of our own on top of t3-env. It earns its place by replacing four hand-synced lists. If it grows past a screenful, drop it and use plain t3-env with a hand-written `.env.example`.
+- `env-core` is used, not `env-nextjs`, so the package has no Next.js dependency. Next.js apps add `env-nextjs` themselves for public keys.
+- Seeding wraps the `infisical` CLI, so it needs the CLI and `infisical login`. Secrets never appear in our code or the process list.
 
 ## Scale
-Config is read once at startup, so there is no runtime cost. The only scaling concern is people: more platforms means more keys, which is why each package owns its own.
+Config is read once at startup, so there is no runtime cost. The scaling concern is people and platforms: more keys, which is why each package owns its own.

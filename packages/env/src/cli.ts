@@ -1,12 +1,32 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { Environment, Folder, ManualSecret, SeedPlan } from "./plan";
-import { buildSeedPlan, ENVIRONMENTS } from "./plan";
 
-const FOLDERS: Folder[] = ["/api", "/web", "/native"];
+import { registry } from "../../../env.registry";
+import type { Environment, Folder } from "./define";
+import { ENVIRONMENTS, FOLDERS } from "./define";
+import type { SeedPlan } from "./plan";
+import { buildExample, buildLocalEnv, buildSeedPlan } from "./plan";
+
+/*
+ * The three commands, thin glue over the pure functions in plan.ts:
+ *   pnpm secrets:seed <dev|test|staging|prod> [--dry-run] [--yes]
+ *   pnpm setup:local [--force]
+ *   pnpm env:example [--check]
+ */
+
 const OWNER_ONLY_FILE_MODE = 0o600;
+// src -> packages/env -> packages -> repo root
+const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..");
+
+// --- Infisical ---------------------------------------------------------------------------
 
 // execFileSync (no shell) so "/api" is not rewritten into a Windows path by Git Bash.
 const infisical = (args: string[]): string =>
@@ -81,11 +101,13 @@ const setSecrets = (
   }
 };
 
+// --- Commands ----------------------------------------------------------------------------
+
 const parseEnvironment = (value: string | undefined): Environment => {
   const match = ENVIRONMENTS.find((candidate) => candidate === value);
   if (!match) {
     throw new Error(
-      `Usage: pnpm secrets:seed <${ENVIRONMENTS.join("|")}> [--dry-run]`
+      `Usage: pnpm secrets:seed <${ENVIRONMENTS.join("|")}> [--dry-run] [--yes]`
     );
   }
   return match;
@@ -97,7 +119,7 @@ const seedFolder = (
   folder: Folder,
   plan: SeedPlan,
   dryRun: boolean
-): ManualSecret[] => {
+): SeedPlan["manual"] => {
   if (!dryRun) {
     ensureFolder(environment, folder);
   }
@@ -126,12 +148,18 @@ const seedFolder = (
   );
 };
 
-const main = (): void => {
-  const [environmentArg, ...flags] = process.argv.slice(2);
+const seed = (args: string[]): void => {
+  const [environmentArg, ...flags] = args;
   const environment = parseEnvironment(environmentArg);
   const dryRun = flags.includes("--dry-run");
-  const plan = buildSeedPlan(environment);
 
+  if (environment === "prod" && !dryRun && !flags.includes("--yes")) {
+    throw new Error(
+      "Seeding prod changes the production secrets store. Run with --dry-run first, then add --yes."
+    );
+  }
+
+  const plan = buildSeedPlan(registry, environment);
   console.log(`Seeding Infisical ${environment}${dryRun ? " (dry run)" : ""}`);
 
   const missingManual = FOLDERS.flatMap((folder) =>
@@ -146,4 +174,44 @@ const main = (): void => {
   }
 };
 
-main();
+const local = (args: string[]): void => {
+  const target = path.join(repoRoot, ".env");
+  if (existsSync(target) && !args.includes("--force")) {
+    throw new Error(
+      `${target} already exists, so nothing was changed.\nDelete it or run \`pnpm setup:local --force\` to replace it.`
+    );
+  }
+  const { lines } = buildLocalEnv(registry);
+  writeFileSync(target, `${lines.join("\n")}\n`, {
+    mode: OWNER_ONLY_FILE_MODE,
+  });
+  console.log(`Wrote ${target}`);
+};
+
+const example = (args: string[]): void => {
+  const target = path.join(repoRoot, ".env.example");
+  const expected = buildExample(registry);
+  if (args.includes("--check")) {
+    const actual = existsSync(target) ? readFileSync(target, "utf-8") : "";
+    if (actual !== expected) {
+      throw new Error(".env.example is out of date. Run `pnpm env:example`.");
+    }
+    console.log(".env.example is up to date.");
+    return;
+  }
+  writeFileSync(target, expected);
+  console.log(`Wrote ${target}`);
+};
+
+const COMMANDS: Record<string, (args: string[]) => void> = {
+  example,
+  local,
+  seed,
+};
+
+const [command = "", ...rest] = process.argv.slice(2);
+const run = COMMANDS[command];
+if (!run) {
+  throw new Error(`Unknown command "${command}". Use: seed, local or example.`);
+}
+run(rest);

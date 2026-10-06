@@ -1,58 +1,78 @@
 # @repo/env
 
-Typed, validated environment variables, plus the tools that fill them in.
+Typed, validated environment variables, defined once, plus the tools that fill them in.
 
 ## Why it exists
 
-Bad or missing config should fail at startup with a clear message, not deep inside a request. This package holds the shared pieces; each feature package declares its own keys next to its code, so removing a package removes its keys. The reasoning is in [`docs/env.md`](../../docs/env.md).
+Bad or missing config should fail at startup with a clear message, not deep inside a request. And a key should be added in **one place**: from a single definition this package derives the validation, the Infisical seed, the local `.env` and `.env.example`. The reasoning is in [`docs/env.md`](../../docs/env.md).
 
 ## What's inside
 
-| Import / script | What it does |
+| File | What it does |
 | --- | --- |
-| `@repo/env/create` | `createServerEnv(shape)`: validates `process.env` against a zod shape. Empty strings count as unset, and `SKIP_ENV_VALIDATION=1` turns validation off (CI builds). |
-| `@repo/env/base` | The keys every runtime has (`NODE_ENV`), as `keys()` and a ready `env`. |
-| `pnpm secrets:seed <dev\|staging\|prod> [--dry-run]` | Fills a fresh Infisical environment (`src/seed/`). |
-| `pnpm setup:local [--force]` | Writes a root `.env` for running with no accounts (`src/local/`). |
+| `src/define.ts` | `defineKeys` (declare keys), `createServerEnv` (validate), `randomSecret`, the environment and folder lists. |
+| `src/base.ts` | The keys every runtime has: `NODE_ENV`, `SKIP_ENV_VALIDATION`. |
+| `src/plan.ts` | Pure functions that build the seed plan, the local `.env` and `.env.example` from the definitions. |
+| `src/cli.ts` | The three commands, thin glue over `plan.ts` and the `infisical` CLI. |
+| `../../env.registry.ts` | The list of packages whose keys the tools read. |
 
-## Use it
+## Define keys
 
-A package declares its keys in its own `keys.ts`:
+A package declares its keys next to its code. One definition holds everything about a key:
 
 ```ts
-import { createServerEnv } from "@repo/env/create";
+import { defineKeys } from "@repo/env/define";
 import { z } from "zod";
 
-export const keys = () =>
-  createServerEnv({ DATABASE_URL: z.url() });
+export const keys = defineKeys({
+  DATABASE_URL: {
+    schema: z.url(),                 // validation; accepting undefined makes a key optional
+    folder: "/api",                  // Infisical folder
+    description: "Postgres connection string",
+    hint: "Neon or Supabase dashboard",
+    local: "postgres://postgres:postgres@localhost:5432/starterkit", // for setup:local
+    // auto: (environment) => "...", // optional: a value we can fill in ourselves
+  },
+});
 ```
 
-An app reads them:
+Then add one line to the root `env.registry.ts` (`registry = [base, ...]`) and run `pnpm env:example`. Use `auto: randomSecret` for signing secrets, or a function that returns a localhost URL for `dev` and `undefined` elsewhere.
+
+## Read keys
 
 ```ts
-import { env } from "@repo/env/base";
+import { keys } from "@repo/env/base";
 
+const env = keys.env(); // throws at startup, naming any bad variable
 console.log(env.NODE_ENV);
 ```
 
-When a package adds a key it must also add it to `src/seed/plan.ts`, `src/local/plan.ts` and the root `.env.example`, in the same change.
+Nothing is validated until `.env()` is called, so the tools can read definitions without side effects.
 
-## Seeding Infisical
+## Commands
 
-Needs the `infisical` CLI on your PATH and a one-time `infisical login` (run `infisical init` in the repo root to link the `starterkit` project). Then:
+| Command | What it does |
+| --- | --- |
+| `pnpm secrets:seed <dev\|test\|staging\|prod> [--dry-run] [--yes]` | Fills an Infisical environment. |
+| `pnpm setup:local [--force]` | Writes a root `.env` for running with no accounts. |
+| `pnpm env:example` | Regenerates the root `.env.example`. `--check` fails if it is out of date. |
 
-```bash
-pnpm secrets:seed dev              # local development
-pnpm secrets:seed prod --dry-run   # show what would be added, change nothing
-```
+### Seeding Infisical
 
-Per environment it creates the `/api`, `/web` and `/native` folders if missing, adds any **missing** key it can fill itself (it never overwrites an existing key), and prints the keys that still need a real value from a vendor dashboard. Values reach Infisical through a temporary owner-only file and are never printed.
+Needs the `infisical` CLI on your PATH and a one-time `infisical login` (run `infisical init` in the repo root to link the `starterkit` project). `dev`, `staging` and `prod` exist in every Infisical project; `test` is a custom environment, so create it in Infisical with the slug `test` before seeding it. Unit tests do not use Infisical: they set their own fake values.
 
-`pnpm secrets:push` sends **every** key in the root `.env` to Infisical `dev /api` and **overwrites** existing ones.
+Per environment it creates the `/api`, `/web` and `/native` folders if missing, adds any **missing** key that has an `auto` value (it never overwrites an existing key), and lists the required keys that still need a real value, with their hint. Optional keys are never listed. Values reach Infisical through a temporary owner-only file and are never printed. Seeding `prod` needs `--yes`, so run `--dry-run` first.
+
+`pnpm secrets:push` (root script) sends **every** key in the root `.env` to Infisical `dev /api` and **overwrites** existing ones.
 
 ## Tests
 
-`pnpm --filter @repo/env test` covers `createServerEnv` (typed values, defaults, empty strings, missing and malformed values, skip switch), the base keys, and the seed and local-setup plans. `seed/seed.ts` and `local/setup.ts` are thin glue over the `infisical` CLI and the file system, so they are not unit tested; check the seed with `--dry-run`.
+`pnpm --filter @repo/env test`:
+
+- `define.test.ts`: validation (typed values, defaults, empty strings, missing and malformed values, the skip switch), `defineKeys`, `isRequired`, `randomSecret` and the base keys.
+- `plan.test.ts`: the seed plan, local `.env` and `.env.example` against a sample set of keys, duplicate-key detection, and a check that the committed `.env.example` matches the real definitions.
+
+`cli.ts` is glue over the `infisical` CLI and the file system, so it is not unit tested; check the seed with `--dry-run`.
 
 `pnpm --filter @repo/env check-types` for types.
 
