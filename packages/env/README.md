@@ -11,6 +11,7 @@ Bad or missing config should fail at startup with a clear message, not deep insi
 | File | What it does |
 | --- | --- |
 | `src/define.ts` | `defineKeys` (declare keys), `createServerEnv` (validate), `randomSecret`, the environment and folder lists. |
+| `src/load.ts` | `loadRootEnv()`: loads the root `.env` for tools that run outside an app (database commands, integration tests). Variables already in the shell win. |
 | `src/base.ts` | The keys every runtime has: `NODE_ENV`, `SKIP_ENV_VALIDATION`. |
 | `src/plan.ts` | Pure functions that build the seed plan, the local `.env` and `.env.example` from the definitions. |
 | `src/cli.ts` | The three commands, thin glue over `plan.ts` and the `infisical` CLI. |
@@ -55,6 +56,7 @@ Nothing is validated until `.env()` is called, so the tools can read definitions
 | --- | --- |
 | `pnpm secrets:seed <dev\|test\|staging\|prod> [--dry-run] [--yes]` | Fills an Infisical environment. |
 | `pnpm setup:local [--force]` | Writes a root `.env` for running with no accounts. |
+| `pnpm env:pull <dev\|test\|staging\|prod> [--force]` | Writes the root `.env` from Infisical (run `pnpm secrets:seed` first so the folders exist). |
 | `pnpm env:example` | Regenerates the root `.env.example`. `--check` fails if it is out of date. |
 
 ### Seeding Infisical
@@ -70,6 +72,7 @@ Per environment it creates the `/api`, `/web` and `/native` folders if missing, 
 `pnpm --filter @repo/env test`:
 
 - `define.test.ts`: validation (typed values, defaults, empty strings, missing and malformed values, the skip switch), `defineKeys`, `isRequired`, `randomSecret` and the base keys.
+- `load.test.ts`: `loadRootEnv` (loads a file, never overrides the shell, no file) and `findRepoRoot`.
 - `plan.test.ts`: the seed plan, local `.env` and `.env.example` against a sample set of keys, duplicate-key detection, and a check that the committed `.env.example` matches the real definitions.
 
 `cli.ts` is glue over the `infisical` CLI and the file system, so it is not unit tested; check the seed with `--dry-run`.

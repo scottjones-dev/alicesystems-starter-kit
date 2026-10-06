@@ -5,11 +5,13 @@
   "type": "module",
   "exports": {
     "./base": "./src/base.ts",
-    "./define": "./src/define.ts"
+    "./define": "./src/define.ts",
+    "./load": "./src/load.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
     "env:example": "tsx src/cli.ts example",
+    "env:pull": "tsx src/cli.ts pull",
     "secrets:seed": "tsx src/cli.ts seed",
     "setup:local": "tsx src/cli.ts local",
     "test": "vitest run"

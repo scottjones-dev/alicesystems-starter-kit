@@ -19,6 +19,7 @@ import { buildExample, buildLocalEnv, buildSeedPlan } from "./plan";
  * The three commands, thin glue over the pure functions in plan.ts:
  *   pnpm secrets:seed <dev|test|staging|prod> [--dry-run] [--yes]
  *   pnpm setup:local [--force]
+ *   pnpm env:pull <dev|test|staging|prod> [--force]
  *   pnpm env:example [--check]
  */
 
@@ -188,6 +189,34 @@ const local = (args: string[]): void => {
   console.log(`Wrote ${target}`);
 };
 
+/** Writes the root .env from Infisical, so every command reads one file whatever its source. */
+const pull = (args: string[]): void => {
+  const [environmentArg, ...flags] = args;
+  const environment = parseEnvironment(environmentArg);
+  const target = path.join(repoRoot, ".env");
+  if (existsSync(target) && !flags.includes("--force")) {
+    throw new Error(
+      `${target} already exists, so nothing was changed.\nDelete it or run with --force to replace it.`
+    );
+  }
+  // One export per folder, joined into a single file. Run `pnpm secrets:seed` first so the folders exist.
+  const sections = FOLDERS.map((folder) =>
+    infisical([
+      "export",
+      "--env",
+      environment,
+      "--path",
+      folder,
+      "--format",
+      "dotenv",
+    ]).trim()
+  ).filter(Boolean);
+  writeFileSync(target, `${sections.join("\n")}\n`, {
+    mode: OWNER_ONLY_FILE_MODE,
+  });
+  console.log(`Wrote ${target} from Infisical ${environment}`);
+};
+
 const example = (args: string[]): void => {
   const target = path.join(repoRoot, ".env.example");
   const expected = buildExample(registry);
@@ -206,12 +235,15 @@ const example = (args: string[]): void => {
 const COMMANDS: Record<string, (args: string[]) => void> = {
   example,
   local,
+  pull,
   seed,
 };
 
 const [command = "", ...rest] = process.argv.slice(2);
 const run = COMMANDS[command];
 if (!run) {
-  throw new Error(`Unknown command "${command}". Use: seed, local or example.`);
+  throw new Error(
+    `Unknown command "${command}". Use: seed, local, pull or example.`
+  );
 }
 run(rest);

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { z } from "zod";
 
 import { keys as base } from "./base";
@@ -70,6 +70,29 @@ describe("defineKeys", () => {
     expect(() => keys.env()).toThrow(INVALID);
     vi.stubEnv("TEST_NAME", "pub");
     expect(keys.env().TEST_NAME).toBe("pub");
+  });
+});
+
+describe("defineKeys types", () => {
+  it("gives each validated value the type of its schema, not unknown", () => {
+    const typed = defineKeys({
+      TEST_FLAG: {
+        description: "x",
+        folder: "/api",
+        schema: z.coerce.boolean(),
+      },
+      TEST_PORT: {
+        description: "x",
+        folder: "/api",
+        schema: z.coerce.number(),
+      },
+    });
+    vi.stubEnv("TEST_FLAG", "true");
+    vi.stubEnv("TEST_PORT", "80");
+    const env = typed.env();
+    expectTypeOf(env.TEST_PORT).toEqualTypeOf<number>();
+    expectTypeOf(env.TEST_FLAG).toEqualTypeOf<boolean>();
+    expect(env.TEST_PORT).toBe(80);
   });
 });
 

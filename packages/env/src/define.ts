@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 import { createEnv } from "@t3-oss/env-core";
-import type { ZodType } from "zod";
+import type { ZodType, z } from "zod";
 
 export const ENVIRONMENTS = ["dev", "test", "staging", "prod"] as const;
 export type Environment = (typeof ENVIRONMENTS)[number];
@@ -51,6 +51,11 @@ export const createServerEnv = <Shape extends Record<string, ZodType>>(
     skipValidation: Boolean(process.env.SKIP_ENV_VALIDATION),
   });
 
+/** The validated values for a set of definitions: each key has the output type of its schema. */
+type ParsedEnv<Definitions extends Record<string, KeyDef>> = {
+  readonly [Key in keyof Definitions]: z.output<Definitions[Key]["schema"]>;
+};
+
 /**
  * Declares a package's environment variables. Nothing is validated until `.env()` is called,
  * so tools (seed, setup:local, .env.example) can read the definitions without side effects.
@@ -59,14 +64,13 @@ export const defineKeys = <Definitions extends Record<string, KeyDef>>(
   definitions: Definitions
 ) => ({
   definitions,
-  env: () => {
+  env: (): ParsedEnv<Definitions> => {
     const schemas = Object.fromEntries(
       Object.entries(definitions).map(([key, { schema }]) => [key, schema])
     );
-    // SAFETY: the object above has exactly the keys of `definitions`, each mapped to its schema.
-    return createServerEnv(
-      schemas as { [Key in keyof Definitions]: Definitions[Key]["schema"] }
-    );
+    // SAFETY: createServerEnv parses process.env with exactly these schemas, so each value has
+    // the output type of its own key's schema. TypeScript cannot see through the generic.
+    return createServerEnv(schemas) as ParsedEnv<Definitions>;
   },
 });
 
