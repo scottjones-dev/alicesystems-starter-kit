@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "customConditions": ["react-native"],
+    "jsx": "react-jsx",
+    "lib": ["DOM", "ESNext"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "target": "ESNext"
+  },
+  "exclude": [
+    "${configDir}/node_modules",
+    "${configDir}/babel.config.js",
+    "${configDir}/metro.config.js",
+    "${configDir}/android",
+    "${configDir}/ios"
+  ]
+}
