@@ -12,6 +12,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `packages/errors` | The error codes, `AppError` and JSON error body every API response uses (`@repo/errors`). |
 | `packages/db` | Drizzle on Postgres: client, column helpers, migrations, test database helper (`@repo/db`). |
 | `infra/postgres` | Local PostgreSQL 18 in Docker. |
+| `packages/config` | Global app constants and the light and dark colour theme, with generated web and native stylesheets (`@repo/config`). |
 | `apps/` | Deployable apps (web, api, native...). Empty for now. |
 | `packages/` | Shared code used by apps. Empty for now. |
 | `pnpm-workspace.yaml` | Tells pnpm that `apps/*` and `packages/*` are workspaces. |

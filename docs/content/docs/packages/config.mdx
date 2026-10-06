@@ -1,0 +1,39 @@
+---
+title: Config
+description: "Global app constants and the colour theme, defined once."
+type: reference
+summary: "Global app constants and the light and dark colour theme, defined once. Generated stylesheets for web and native."
+related:
+  - /docs/structure
+  - /docs/packages/emails
+---
+
+## What it is
+
+`@repo/config` holds what every workspace must agree on: the product's name, languages and links (`app`), and the colours of the whole product in light and dark (`theme`). It is a leaf package: no runtime dependencies, no network, nothing to scale. Everything in it is a build-time constant.
+
+TypeScript presets are **not** here. They live in `@repo/typescript-config`.
+
+## Requirements
+
+- One place to change the product's name, languages, links and colours for a new platform.
+- The website and the native app must never drift from the colours emails use.
+- Text must stay readable in light and dark, and a test must say so.
+- Nothing environment-specific: a staging email must not link to production.
+
+## Design
+
+- **`app`** (`@repo/config/app`): name, description, languages (and each written in itself), email sender name and reply-to, support, privacy and terms links, the native deep-link scheme, the API base path. Fields are added when something reads them.
+- **Web addresses are not here.** They differ between development, staging and production, so they are environment keys (`WEB_ORIGIN`, `BETTER_AUTH_URL`). Links in `app` are paths; emails turn them into full links using the environment's address.
+- **`theme`** (`@repo/config/theme`): all 31 shadcn-named tokens (`background`, `foreground`, `primary`, `sidebar-*`, `chart-*`...) in light and dark, plus the corner radius. The palette is a neutral placeholder (slate with a blue primary) that each platform replaces.
+- **Generated files** (`pnpm theme:generate`) live inside this package and are imported from it, so config never writes into another workspace:
+  - `@repo/config/web.css`: shadcn variables, light in `:root`, dark under `.dark`;
+  - `@repo/config/native.css`: the Nativewind `@theme` and `:root` blocks (light by default);
+  - `@repo/config/native-variables.json`: the variable names, for the native Metro config, which cannot import TypeScript.
+- **`contrast`** (`@repo/config/contrast`): the WCAG contrast calculation. The theme tests use it, and so can any package that builds a palette from the theme.
+
+## Trade-offs
+
+- **Colours are hand-picked, checked by tests.** Instead of deriving 62 colours from a few brand inputs, every token is written out and a test checks every text pair (4.5:1) and every control or chart colour (3:1) in both schemes. Changing a brand colour means checking the pairs, and the test says which one broke.
+- **Generated files are committed**, so a missing generator run is caught by a test, not discovered in the browser.
+- **Light is the default** for the native stylesheet; the app swaps in the dark values at runtime when the device is in dark mode.

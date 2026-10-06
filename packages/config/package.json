@@ -1,0 +1,25 @@
+{
+  "name": "@repo/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./app": "./src/app.ts",
+    "./contrast": "./src/contrast.ts",
+    "./native-variables.json": "./generated/native-variables.json",
+    "./native.css": "./generated/native.css",
+    "./theme": "./src/theme.ts",
+    "./web.css": "./generated/web.css"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "theme:generate": "tsx src/scripts/generate-theme.ts"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3"
+  }
+}
