@@ -67,6 +67,18 @@ export const formatMoney = (
   return formatter.format(minorUnits / 10 ** decimals);
 };
 
+/**
+ * A length of time in words: "15 minutes", "1 hour", "15分钟". The language supplies the
+ * right word forms, so catalogs need no plural keys for it.
+ */
+export const formatDuration = (
+  duration: Parameters<Intl.DurationFormat["format"]>[0],
+  language: string | null | undefined
+): string =>
+  new Intl.DurationFormat(intlLocale(language), { style: "long" }).format(
+    duration
+  );
+
 /** "A, B and C" with the right word and punctuation for the language. */
 export const formatList = (
   items: string[],

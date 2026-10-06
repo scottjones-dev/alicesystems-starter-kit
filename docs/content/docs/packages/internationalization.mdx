@@ -33,5 +33,5 @@ related:
 ## Trade-offs
 
 - **The shipped translations are machine-written and have not been checked by native speakers.** They are short (button labels and error messages), but check them before a platform goes live. Portuguese is written for Brazil, and German uses the informal "du".
-- **`languine.json` and `pnpm translate` are set up but untested.** Languine needs an account key (`LANGUINE_API_KEY`), and the starter-kit this was based on reported its server failing. Until it works, write translations by hand; `catalogs:check` blocks incomplete ones either way.
+- **`languine.json` and `pnpm translate` are set up but untested.** Languine needs an account key and project ID (`LANGUINE_API_KEY`, `LANGUINE_PROJECT_ID`, both from env; never run `languine init`, it rewrites `languine.json` and writes the ID into it), and the starter-kit this was based on reported its server failing. Until it works, write translations by hand; `catalogs:check` blocks incomplete ones either way. If it says "You are not logged in", run `pnpm dlx languine@latest auth login` once.
 - **All catalogs are bundled.** No language waits for a network request, at the cost of bundle size. That is fine at this size; revisit if catalogs grow into the megabytes.

@@ -17,8 +17,22 @@ if (!process.env.LANGUINE_API_KEY) {
   );
 }
 
-const result = spawnSync("pnpm", ["dlx", "languine@latest", "translate"], {
-  shell: true,
-  stdio: "inherit",
-});
+// languine.json has no projectId on purpose (it would be committed); Languine reads this variable.
+if (!process.env.LANGUINE_PROJECT_ID) {
+  throw new Error(
+    "LANGUINE_PROJECT_ID is not set. Copy the project ID (prj_...) from https://languine.ai, put it in Infisical /internationalization, then run `pnpm env:pull`."
+  );
+}
+
+// Extra flags (e.g. `pnpm translate --force`) go straight through to Languine.
+const extraArgs = process.argv.slice(2);
+
+const result = spawnSync(
+  "pnpm",
+  ["dlx", "languine@latest", "translate", ...extraArgs],
+  {
+    shell: true,
+    stdio: "inherit",
+  }
+);
 process.exit(result.status ?? 1);

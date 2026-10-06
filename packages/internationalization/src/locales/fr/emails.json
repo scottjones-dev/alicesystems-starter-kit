@@ -1,0 +1,51 @@
+{
+  "common": {
+    "buttonFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+    "greeting": "Bonjour {{name}},",
+    "ignoreIfNotYou": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.",
+    "privacy": "Confidentialité",
+    "questions": "Une question ? Contactez {{email}}.",
+    "terms": "Conditions"
+  },
+  "deleteAccount": {
+    "body": "Nous avons reçu une demande de suppression définitive de votre compte et de ses données. Confirmez ci-dessous pour continuer.",
+    "button": "Supprimer mon compte",
+    "expiry": "Ce lien expire dans {{duration}}.",
+    "heading": "Supprimer votre compte ?",
+    "preview": "Confirmez que vous souhaitez supprimer votre compte.",
+    "subject": "Confirmez la suppression de votre compte",
+    "warning": "Cette action est irréversible."
+  },
+  "magicLink": {
+    "body": "Utilisez le bouton ci-dessous pour vous connecter. Aucun mot de passe n'est nécessaire.",
+    "button": "Se connecter",
+    "expiry": "Ce lien expire dans {{duration}} et ne fonctionne qu'une seule fois.",
+    "heading": "Connexion",
+    "preview": "Utilisez ce lien pour vous connecter.",
+    "subject": "Votre lien de connexion"
+  },
+  "organizationInvitation": {
+    "body": "{{inviter}} vous a invité à rejoindre {{organization}} en tant que {{role}}.",
+    "button": "Accepter l'invitation",
+    "expiry": "Cette invitation expire dans {{duration}}.",
+    "heading": "Vous êtes invité à rejoindre {{organization}}",
+    "preview": "Rejoignez {{organization}} en tant que {{role}}.",
+    "subject": "{{inviter}} vous a invité à rejoindre {{organization}}"
+  },
+  "resetPassword": {
+    "body": "Nous avons reçu une demande de réinitialisation du mot de passe de votre compte. Choisissez-en un nouveau avec le bouton ci-dessous.",
+    "button": "Choisir un nouveau mot de passe",
+    "expiry": "Ce lien expire dans {{duration}}.",
+    "heading": "Réinitialisez votre mot de passe",
+    "preview": "Utilisez ce lien pour choisir un nouveau mot de passe.",
+    "subject": "Réinitialisez votre mot de passe"
+  },
+  "verifyEmail": {
+    "body": "Merci de vous être inscrit. Confirmez votre adresse e-mail pour terminer la création de votre compte.",
+    "button": "Vérifier l'e-mail",
+    "expiry": "Ce lien expire dans {{duration}}.",
+    "heading": "Vérifiez votre e-mail",
+    "preview": "Confirmez votre adresse e-mail pour terminer la création de votre compte.",
+    "subject": "Vérifiez votre adresse e-mail"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "common": {
+    "buttonFallback": "Falls die Schaltfläche nicht funktioniert, kopiere diesen Link in deinen Browser:",
+    "greeting": "Hallo {{name}},",
+    "ignoreIfNotYou": "Wenn du das nicht angefordert hast, kannst du diese E-Mail einfach ignorieren.",
+    "privacy": "Datenschutz",
+    "questions": "Fragen? Schreib uns an {{email}}.",
+    "terms": "Nutzungsbedingungen"
+  },
+  "deleteAccount": {
+    "body": "Wir haben eine Anfrage erhalten, dein Konto und alle zugehörigen Daten dauerhaft zu löschen. Bestätige unten, um fortzufahren.",
+    "button": "Mein Konto löschen",
+    "expiry": "Dieser Link läuft in {{duration}} ab.",
+    "heading": "Konto löschen?",
+    "preview": "Bestätige, dass du dein Konto löschen möchtest.",
+    "subject": "Löschung deines Kontos bestätigen",
+    "warning": "Das kann nicht rückgängig gemacht werden."
+  },
+  "magicLink": {
+    "body": "Melde dich mit der Schaltfläche unten an. Du brauchst kein Passwort.",
+    "button": "Anmelden",
+    "expiry": "Dieser Link läuft in {{duration}} ab und funktioniert nur einmal.",
+    "heading": "Anmelden",
+    "preview": "Nutze diesen Link, um dich anzumelden.",
+    "subject": "Dein Anmeldelink"
+  },
+  "organizationInvitation": {
+    "body": "{{inviter}} hat dich eingeladen, {{organization}} als {{role}} beizutreten.",
+    "button": "Einladung annehmen",
+    "expiry": "Diese Einladung läuft in {{duration}} ab.",
+    "heading": "Du wurdest zu {{organization}} eingeladen",
+    "preview": "Tritt {{organization}} als {{role}} bei.",
+    "subject": "{{inviter}} hat dich zu {{organization}} eingeladen"
+  },
+  "resetPassword": {
+    "body": "Wir haben eine Anfrage erhalten, das Passwort für dein Konto zurückzusetzen. Wähle mit der Schaltfläche unten ein neues.",
+    "button": "Neues Passwort wählen",
+    "expiry": "Dieser Link läuft in {{duration}} ab.",
+    "heading": "Passwort zurücksetzen",
+    "preview": "Nutze diesen Link, um ein neues Passwort zu wählen.",
+    "subject": "Passwort zurücksetzen"
+  },
+  "verifyEmail": {
+    "body": "Danke für deine Registrierung. Bestätige deine E-Mail-Adresse, um dein Konto fertig einzurichten.",
+    "button": "E-Mail bestätigen",
+    "expiry": "Dieser Link läuft in {{duration}} ab.",
+    "heading": "E-Mail-Adresse bestätigen",
+    "preview": "Bestätige deine E-Mail-Adresse, um dein Konto fertig einzurichten.",
+    "subject": "Bestätige deine E-Mail-Adresse"
+  }
+}

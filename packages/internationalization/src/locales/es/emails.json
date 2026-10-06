@@ -1,0 +1,51 @@
+{
+  "common": {
+    "buttonFallback": "Si el botón no funciona, copia este enlace en tu navegador:",
+    "greeting": "Hola {{name}},",
+    "ignoreIfNotYou": "Si no lo has solicitado, puedes ignorar este correo sin problema.",
+    "privacy": "Privacidad",
+    "questions": "¿Preguntas? Escríbenos a {{email}}.",
+    "terms": "Términos"
+  },
+  "deleteAccount": {
+    "body": "Hemos recibido una solicitud para eliminar de forma permanente tu cuenta y sus datos. Confirma a continuación para continuar.",
+    "button": "Eliminar mi cuenta",
+    "expiry": "Este enlace caduca en {{duration}}.",
+    "heading": "¿Eliminar tu cuenta?",
+    "preview": "Confirma que quieres eliminar tu cuenta.",
+    "subject": "Confirma la eliminación de tu cuenta",
+    "warning": "Esta acción no se puede deshacer."
+  },
+  "magicLink": {
+    "body": "Usa el botón de abajo para iniciar sesión. No necesitas contraseña.",
+    "button": "Iniciar sesión",
+    "expiry": "Este enlace caduca en {{duration}} y solo funciona una vez.",
+    "heading": "Inicia sesión",
+    "preview": "Usa este enlace para iniciar sesión.",
+    "subject": "Tu enlace para iniciar sesión"
+  },
+  "organizationInvitation": {
+    "body": "{{inviter}} te ha invitado a unirte a {{organization}} como {{role}}.",
+    "button": "Aceptar invitación",
+    "expiry": "Esta invitación caduca en {{duration}}.",
+    "heading": "Te han invitado a {{organization}}",
+    "preview": "Únete a {{organization}} como {{role}}.",
+    "subject": "{{inviter}} te ha invitado a {{organization}}"
+  },
+  "resetPassword": {
+    "body": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta. Elige una nueva con el botón de abajo.",
+    "button": "Elegir una nueva contraseña",
+    "expiry": "Este enlace caduca en {{duration}}.",
+    "heading": "Restablece tu contraseña",
+    "preview": "Usa este enlace para elegir una nueva contraseña.",
+    "subject": "Restablece tu contraseña"
+  },
+  "verifyEmail": {
+    "body": "Gracias por registrarte. Confirma tu dirección de correo para terminar de crear tu cuenta.",
+    "button": "Verificar correo",
+    "expiry": "Este enlace caduca en {{duration}}.",
+    "heading": "Verifica tu correo",
+    "preview": "Confirma tu dirección de correo para terminar de crear tu cuenta.",
+    "subject": "Verifica tu dirección de correo"
+  }
+}

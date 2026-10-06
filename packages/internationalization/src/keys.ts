@@ -9,4 +9,11 @@ export const keys = defineKeys({
     hint: "https://languine.ai",
     schema: z.string().min(1).optional(),
   },
+  LANGUINE_PROJECT_ID: {
+    description:
+      "Translation tooling (optional): Languine project ID for `pnpm translate`. Kept in env, not languine.json, so it stays out of git.",
+    folder: "/internationalization",
+    hint: "https://languine.ai (project settings, starts with prj_)",
+    schema: z.string().min(1).optional(),
+  },
 });

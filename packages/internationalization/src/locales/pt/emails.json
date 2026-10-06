@@ -1,0 +1,51 @@
+{
+  "common": {
+    "buttonFallback": "Se o botão não funcionar, copie este link para o seu navegador:",
+    "greeting": "Olá, {{name}},",
+    "ignoreIfNotYou": "Se você não solicitou isso, pode ignorar este e-mail com segurança.",
+    "privacy": "Privacidade",
+    "questions": "Dúvidas? Fale com {{email}}.",
+    "terms": "Termos"
+  },
+  "deleteAccount": {
+    "body": "Recebemos um pedido para excluir permanentemente sua conta e seus dados. Confirme abaixo para continuar.",
+    "button": "Excluir minha conta",
+    "expiry": "Este link expira em {{duration}}.",
+    "heading": "Excluir sua conta?",
+    "preview": "Confirme que você quer excluir sua conta.",
+    "subject": "Confirme a exclusão da sua conta",
+    "warning": "Isso não pode ser desfeito."
+  },
+  "magicLink": {
+    "body": "Use o botão abaixo para entrar. Você não precisa de senha.",
+    "button": "Entrar",
+    "expiry": "Este link expira em {{duration}} e só funciona uma vez.",
+    "heading": "Entrar",
+    "preview": "Use este link para entrar.",
+    "subject": "Seu link de acesso"
+  },
+  "organizationInvitation": {
+    "body": "{{inviter}} convidou você para entrar em {{organization}} como {{role}}.",
+    "button": "Aceitar convite",
+    "expiry": "Este convite expira em {{duration}}.",
+    "heading": "Você foi convidado para {{organization}}",
+    "preview": "Entre em {{organization}} como {{role}}.",
+    "subject": "{{inviter}} convidou você para {{organization}}"
+  },
+  "resetPassword": {
+    "body": "Recebemos um pedido para redefinir a senha da sua conta. Escolha uma nova com o botão abaixo.",
+    "button": "Escolher uma nova senha",
+    "expiry": "Este link expira em {{duration}}.",
+    "heading": "Redefina sua senha",
+    "preview": "Use este link para escolher uma nova senha.",
+    "subject": "Redefina sua senha"
+  },
+  "verifyEmail": {
+    "body": "Obrigado por se cadastrar. Confirme seu endereço de e-mail para concluir a criação da sua conta.",
+    "button": "Verificar e-mail",
+    "expiry": "Este link expira em {{duration}}.",
+    "heading": "Verifique seu e-mail",
+    "preview": "Confirme seu endereço de e-mail para concluir a criação da sua conta.",
+    "subject": "Verifique seu endereço de e-mail"
+  }
+}

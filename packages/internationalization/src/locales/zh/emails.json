@@ -1,0 +1,51 @@
+{
+  "common": {
+    "buttonFallback": "如果按钮无法使用，请将此链接复制到浏览器中：",
+    "greeting": "{{name}}，你好：",
+    "ignoreIfNotYou": "如果这不是你的操作，请忽略这封邮件。",
+    "privacy": "隐私",
+    "questions": "有问题？请联系 {{email}}。",
+    "terms": "条款"
+  },
+  "deleteAccount": {
+    "body": "我们收到了永久删除你的账户及其数据的请求。请在下方确认以继续。",
+    "button": "删除我的账户",
+    "expiry": "此链接将在 {{duration}}后失效。",
+    "heading": "删除你的账户？",
+    "preview": "请确认你要删除账户。",
+    "subject": "确认删除账户",
+    "warning": "此操作无法撤销。"
+  },
+  "magicLink": {
+    "body": "点击下方按钮登录，无需密码。",
+    "button": "登录",
+    "expiry": "此链接将在 {{duration}}后失效，且只能使用一次。",
+    "heading": "登录",
+    "preview": "使用此链接登录。",
+    "subject": "你的登录链接"
+  },
+  "organizationInvitation": {
+    "body": "{{inviter}} 邀请你以{{role}}身份加入 {{organization}}。",
+    "button": "接受邀请",
+    "expiry": "此邀请将在 {{duration}}后失效。",
+    "heading": "你被邀请加入 {{organization}}",
+    "preview": "以{{role}}身份加入 {{organization}}。",
+    "subject": "{{inviter}} 邀请你加入 {{organization}}"
+  },
+  "resetPassword": {
+    "body": "我们收到了重置你账户密码的请求。请使用下方按钮设置新密码。",
+    "button": "设置新密码",
+    "expiry": "此链接将在 {{duration}}后失效。",
+    "heading": "重置密码",
+    "preview": "使用此链接设置新密码。",
+    "subject": "重置你的密码"
+  },
+  "verifyEmail": {
+    "body": "感谢注册。请确认你的电子邮箱地址以完成账户创建。",
+    "button": "验证邮箱",
+    "expiry": "此链接将在 {{duration}}后失效。",
+    "heading": "验证你的邮箱",
+    "preview": "请确认你的电子邮箱地址以完成账户创建。",
+    "subject": "验证你的电子邮箱地址"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "common": {
+    "buttonFallback": "If the button does not work, copy this link into your browser:",
+    "greeting": "Hi {{name}},",
+    "ignoreIfNotYou": "If you did not ask for this, you can safely ignore this email.",
+    "privacy": "Privacy",
+    "questions": "Questions? Contact {{email}}.",
+    "terms": "Terms"
+  },
+  "deleteAccount": {
+    "body": "We received a request to permanently delete your account and its data. Confirm below to continue.",
+    "button": "Delete my account",
+    "expiry": "This link expires in {{duration}}.",
+    "heading": "Delete your account?",
+    "preview": "Confirm that you want to delete your account.",
+    "subject": "Confirm account deletion",
+    "warning": "This cannot be undone."
+  },
+  "magicLink": {
+    "body": "Use the button below to sign in. You do not need a password.",
+    "button": "Sign in",
+    "expiry": "This link expires in {{duration}} and works once.",
+    "heading": "Sign in",
+    "preview": "Use this link to sign in.",
+    "subject": "Your sign-in link"
+  },
+  "organizationInvitation": {
+    "body": "{{inviter}} invited you to join {{organization}} as {{role}}.",
+    "button": "Accept invitation",
+    "expiry": "This invitation expires in {{duration}}.",
+    "heading": "You are invited to {{organization}}",
+    "preview": "Join {{organization}} as {{role}}.",
+    "subject": "{{inviter}} invited you to {{organization}}"
+  },
+  "resetPassword": {
+    "body": "We received a request to reset the password for your account. Choose a new one with the button below.",
+    "button": "Choose a new password",
+    "expiry": "This link expires in {{duration}}.",
+    "heading": "Reset your password",
+    "preview": "Use this link to choose a new password.",
+    "subject": "Reset your password"
+  },
+  "verifyEmail": {
+    "body": "Thanks for signing up. Confirm your email address to finish creating your account.",
+    "button": "Verify email",
+    "expiry": "This link expires in {{duration}}.",
+    "heading": "Verify your email",
+    "preview": "Confirm your email address to finish creating your account.",
+    "subject": "Verify your email address"
+  }
+}

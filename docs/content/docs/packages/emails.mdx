@@ -1,0 +1,37 @@
+---
+title: Emails
+description: "React Email templates, rendered to HTML and plain text, in the recipient's language."
+type: reference
+summary: "Five typed email templates (verify email, reset password, magic link, delete account, organization invitation), plain inline styles in one look (light now, switchable to dark), rendered to HTML and plain text. It renders only; sending is the notifications package."
+related:
+  - /docs/structure
+  - /docs/packages/config
+  - /docs/packages/internationalization
+  - /docs/packages/notifications
+---
+
+## What it is
+
+`@repo/emails` turns typed props into an email: `renderEmail("verify-email", props)` returns `{ html, text, subject }`. It sends nothing; delivery belongs to `@repo/notifications`.
+
+## Requirements
+
+- Every email the auth package sends, and any other transactional email a platform adds, looks the same and reads in the recipient's language.
+- Each platform changes its brand in `@repo/config`, never in a template.
+- An HTML version and a plain-text version of every email, so mail clients and spam filters are both happy.
+- A template cannot be rendered with a missing prop or a missing translation.
+
+## Design
+
+- **One typed registry.** `registry.ts` lists every template with its props type, its preview props and its subject. `renderEmail(id, props)` is typed per template. A test renders every template in every language.
+- **Plain inline styles, no Tailwind, one look.** React Email components take `style` props, so there is no CSS framework and no build step. `@repo/config` has both a light and a dark theme; emails use **light**, set by one constant (`EMAIL_COLOR_SCHEME` in `styles.ts`). Change that line to `"dark"` and every email, and the `color-scheme` meta that asks mail clients to leave it alone, follows. Tests check the pairs the emails use are readable (4.5:1) in **both** themes, so switching is safe. Following the reader's system setting is not built: it would need a second palette and a media query in every email. Some mail apps (Gmail's mobile app, some Outlook versions) darken emails regardless, so the palette keeps its contrast.
+- **Text lives in the `emails` namespace of `@repo/internationalization`**, never in a component. Times are written by `formatDuration`, so there are no plural forms to translate.
+- **Props carry everything environment-specific.** Every template takes `baseUrl` (the web address of the environment it is sent from, used for the footer links) and an optional `locale`. The brand name, sender and support address come from `@repo/config`. Nothing is read from the environment.
+- **Preview:** `pnpm emails:preview` starts React Email's preview server on the templates folder; every template has `PreviewProps`.
+
+## Trade-offs
+
+- **One look, not two.** An email may look bright in a dark inbox, in exchange for one palette to design and check. The dark theme exists and is tested, so choosing it later is a one-line change.
+- **Five templates only.** Security notices (password changed, two-factor changed, new sign-in location) are not here yet; add them when auth sends them.
+- **Translations are unverified machine translations**, like the rest of `@repo/internationalization`. Check them before a platform goes live.
+- **No tokenized export for Novu.** Starter-kit's build wrote HTML with `{{placeholders}}` for Novu to fill. Whether notifications needs that is decided with the notifications package, and it is a small addition.

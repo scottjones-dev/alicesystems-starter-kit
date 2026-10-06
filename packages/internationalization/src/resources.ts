@@ -3,48 +3,60 @@
  * Do not edit by hand: add or remove catalog files, then run the generator.
  */
 import deCommon from "./locales/de/common.json";
+import deEmails from "./locales/de/emails.json";
 import deErrors from "./locales/de/errors.json";
 import enCommon from "./locales/en/common.json";
+import enEmails from "./locales/en/emails.json";
 import enErrors from "./locales/en/errors.json";
 import esCommon from "./locales/es/common.json";
+import esEmails from "./locales/es/emails.json";
 import esErrors from "./locales/es/errors.json";
 import frCommon from "./locales/fr/common.json";
+import frEmails from "./locales/fr/emails.json";
 import frErrors from "./locales/fr/errors.json";
 import ptCommon from "./locales/pt/common.json";
+import ptEmails from "./locales/pt/emails.json";
 import ptErrors from "./locales/pt/errors.json";
 import zhCommon from "./locales/zh/common.json";
+import zhEmails from "./locales/zh/emails.json";
 import zhErrors from "./locales/zh/errors.json";
 
 /** Every catalog, bundled statically so no language ever waits for a network request. */
 export const resources = {
   de: {
     common: deCommon,
+    emails: deEmails,
     errors: deErrors,
   },
   en: {
     common: enCommon,
+    emails: enEmails,
     errors: enErrors,
   },
   es: {
     common: esCommon,
+    emails: esEmails,
     errors: esErrors,
   },
   fr: {
     common: frCommon,
+    emails: frEmails,
     errors: frErrors,
   },
   pt: {
     common: ptCommon,
+    emails: ptEmails,
     errors: ptErrors,
   },
   zh: {
     common: zhCommon,
+    emails: zhEmails,
     errors: zhErrors,
   },
 } as const;
 
 /** Namespaces: one JSON file per area, so a screen can ask for only what it needs. */
-export const namespaces = ["common", "errors"] as const;
+export const namespaces = ["common", "emails", "errors"] as const;
 export type Namespace = (typeof namespaces)[number];
 
 export const defaultNamespace: Namespace = "common";

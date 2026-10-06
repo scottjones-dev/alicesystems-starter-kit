@@ -40,7 +40,7 @@ formatMoney(1999, "GBP", locale); // "£19.99"
 | --- | --- |
 | `pnpm --filter @repo/internationalization catalogs:generate` | Rewrites `src/resources.ts` from the folders in `src/locales`. Run it after adding or removing a language or namespace. |
 | `pnpm --filter @repo/internationalization catalogs:check` | Fails if a language is incomplete or inconsistent. |
-| `pnpm --filter @repo/internationalization translate` | Asks Languine to translate what changed in English. Needs `LANGUINE_API_KEY` (Infisical `/internationalization`, then `pnpm env:pull`). **Untested**; read what it writes before committing. |
+| `pnpm --filter @repo/internationalization translate` | Asks Languine to translate what changed in English. Needs `LANGUINE_API_KEY` and `LANGUINE_PROJECT_ID` (Infisical `/internationalization`, then `pnpm env:pull`). If it says "not logged in", run `pnpm dlx languine@latest auth login` once. **Untested**; read what it writes before committing. |
 
 To add a language: add it to `app.i18n.locales` and `names` in `@repo/config`, add its folder under `src/locales` (copy `en`), add it to `languine.json`, run `catalogs:generate`, and translate.
 
@@ -59,4 +59,4 @@ To add a language: add it to `app.i18n.locales` and `names` in `@repo/config`, a
 
 ## Depends on / used by
 
-Depends on `i18next`, `@repo/config` (the language list) and `@repo/env` (`LANGUINE_API_KEY`); `@repo/errors` is a dev dependency (a test checks every error code has a message). Used by emails, notifications, auth and the web and native apps (not built yet).
+Depends on `i18next`, `@repo/config` (the language list) and `@repo/env` (`LANGUINE_API_KEY`, `LANGUINE_PROJECT_ID`); `@repo/errors` is a dev dependency (a test checks every error code has a message). Used by emails, notifications, auth and the web and native apps (not built yet).

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatDate,
   formatDateTime,
+  formatDuration,
   formatList,
   formatMoney,
   formatNumber,
@@ -66,6 +67,16 @@ describe("formatMoney", () => {
     for (const bad of [19.99, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(() => formatMoney(bad, "GBP", "en")).toThrow("whole number");
     }
+  });
+});
+
+describe("formatDuration", () => {
+  it("writes a length of time in the person's language", () => {
+    expect(formatDuration({ minutes: 15 }, "en")).toBe("15 minutes");
+    expect(formatDuration({ hours: 1 }, "en")).toBe("1 hour");
+    expect(formatDuration({ minutes: 15 }, "de")).toBe("15 Minuten");
+    expect(formatDuration({ minutes: 15 }, "es")).toBe("15 minutos");
+    expect(formatDuration({ minutes: 15 }, "zh")).toBe("15分钟");
   });
 });
 
