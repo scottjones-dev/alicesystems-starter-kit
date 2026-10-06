@@ -10,6 +10,9 @@
     "dev": "turbo run dev",
     "fix": "ultracite fix",
     "prepare": "husky",
+    "secrets:push": "infisical secrets set --env=dev --path=/api --file=.env",
+    "secrets:seed": "pnpm --filter @repo/env secrets:seed",
+    "setup:local": "pnpm --filter @repo/env setup:local",
     "test": "turbo run test"
   },
   "devDependencies": {

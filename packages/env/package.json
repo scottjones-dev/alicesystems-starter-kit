@@ -1,0 +1,26 @@
+{
+  "name": "@repo/env",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./src/base.ts",
+    "./create": "./src/create-env.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "secrets:seed": "tsx src/seed/seed.ts",
+    "setup:local": "tsx src/local/setup.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "^0.13.11",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3"
+  }
+}

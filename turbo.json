@@ -1,12 +1,20 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
+  "globalPassThroughEnv": ["NODE_ENV", "SKIP_ENV_VALIDATION"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
-    "check-types": { "dependsOn": ["^check-types"] },
-    "test": { "dependsOn": ["^build"] },
-    "dev": { "cache": false, "persistent": true }
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
   }
 }
