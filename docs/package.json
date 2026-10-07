@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "@repo/development-docs",
   "version": "0.0.41",
   "private": true,
   "scripts": {
@@ -8,9 +8,12 @@
     "format": "biome format --write",
     "lint": "biome check",
     "start": "next start",
+    "test": "vitest run",
     "types:check": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@repo/config": "workspace:*",
+    "@repo/ui": "workspace:*",
     "cn": "^0.4.0",
     "fumadocs-core": "16.16.2",
     "fumadocs-mdx": "15.4.6",
@@ -29,6 +32,7 @@
     "@types/react-dom": "^19.3.0",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }
