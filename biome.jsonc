@@ -15,5 +15,16 @@
       "!packages/internationalization/src/resources.ts",
       "!apps/native/assets"
     ]
-  }
+  },
+  "overrides": [
+    {
+      // Metro loads its config as CommonJS, where `__dirname` is the only way to get the folder.
+      // The rule's auto-fix swaps in `import.meta.dirname`, which turns the file into an ES
+      // module and breaks `require`, so the rule is off for this file.
+      "includes": ["apps/native/metro.config.js"],
+      "linter": {
+        "rules": { "correctness": { "noGlobalDirnameFilename": "off" } }
+      }
+    }
+  ]
 }

@@ -1,25 +1,18 @@
 import { app } from "@repo/config/app";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text accessibilityRole="header" style={styles.title}>
+    <View className="flex-1 items-center justify-center gap-2 bg-background p-6">
+      <Text
+        accessibilityRole="header"
+        className="font-semibold text-3xl text-foreground"
+      >
         {app.name}
       </Text>
-      <Text style={styles.body}>{app.description}</Text>
+      <Text className="text-center text-base text-muted-foreground">
+        {app.description}
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  body: { color: "#475569", fontSize: 16, textAlign: "center" },
-  container: {
-    alignItems: "center",
-    flex: 1,
-    gap: 8,
-    justifyContent: "center",
-    padding: 24,
-  },
-  title: { fontSize: 28, fontWeight: "600" },
-});

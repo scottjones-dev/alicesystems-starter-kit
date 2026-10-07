@@ -1,0 +1,17 @@
+/*
+ * Tailwind for the app (NativeWind 5). Keep the utilities unlayered as written here: a single
+ * `@import "tailwindcss"` can put them below the platform defaults.
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import "nativewind/theme";
+
+/*
+ * The colours (bg-background, text-foreground, bg-primary, border-border and so on, the same
+ * names as on the website) come from @repo/config, generated from packages/config/src/theme.ts.
+ * Light is the default here; the ThemeProvider switches to dark at runtime. Run
+ * `pnpm theme:generate` after changing a colour.
+ */
+@import "@repo/config/native.css";

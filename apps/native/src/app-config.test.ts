@@ -55,3 +55,24 @@ describe("app.json", () => {
     expect(appJson.expo.userInterfaceStyle).toBe("automatic");
   });
 });
+
+describe("NativeWind setup", () => {
+  const read = (file: string) =>
+    readFileSync(path.join(import.meta.dirname, "..", file), "utf-8");
+
+  it("takes its colours from the generated stylesheet in @repo/config", () => {
+    expect(read("src/global.css")).toContain(
+      '@import "@repo/config/native.css"'
+    );
+  });
+
+  it("keeps the theme variables out of build-time inlining, so dark mode can switch at runtime", () => {
+    expect(read("metro.config.js")).toContain(
+      "@repo/config/native-variables.json"
+    );
+  });
+
+  it("runs Tailwind through PostCSS from a .mjs file, the only name Expo picks up", () => {
+    expect(read("postcss.config.mjs")).toContain("@tailwindcss/postcss");
+  });
+});
