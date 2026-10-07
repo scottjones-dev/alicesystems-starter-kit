@@ -1,4 +1,5 @@
 import { app } from "@repo/config/app";
+import { decimalsOf } from "@repo/money/currency";
 
 import { toLocale } from "./resolve";
 
@@ -59,12 +60,15 @@ export const formatMoney = (
       `Money must be a whole number of minor units, got ${minorUnits}.`
     );
   }
-  const formatter = new Intl.NumberFormat(intlLocale(language), {
+  // The decimals come from @repo/money, not from Intl: Intl follows display habit (it shows
+  // HUF and COP with none), but amounts are stored in the ISO minor unit that @repo/money uses.
+  const decimals = decimalsOf(currency);
+  return new Intl.NumberFormat(intlLocale(language), {
     currency,
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: decimals,
     style: "currency",
-  });
-  const decimals = formatter.resolvedOptions().maximumFractionDigits ?? 2;
-  return formatter.format(minorUnits / 10 ** decimals);
+  }).format(minorUnits / 10 ** decimals);
 };
 
 /**

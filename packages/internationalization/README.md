@@ -29,7 +29,7 @@ import { resolveLocale } from "@repo/internationalization/resolve";
 const locale = resolveLocale({ user: session.user.locale, acceptLanguage });
 const t = getT(locale, "errors"); // falls back to English
 t("NOT_FOUND");
-formatMoney(1999, "GBP", locale); // "£19.99"
+formatMoney(1999, "GBP", locale); // "£19.99" (decimals come from @repo/money)
 ```
 
 `resolveLocale` picks, in order: the signed-in user's saved language, the cookie, the `Accept-Language` header, the device language, then English. Money is always a whole number of minor units.
@@ -49,7 +49,7 @@ To add a language: add it to `app.i18n.locales` and `names` in `@repo/config`, a
 `pnpm --filter @repo/internationalization test`:
 
 - `resolve.test.ts`: language tags, `Accept-Language` weights, and the order of `resolveLocale`.
-- `format.test.ts`: dates, numbers, lists and money in several languages and currencies (GBP, JPY, BHD), and refusal of fractional minor units.
+- `format.test.ts`: dates, numbers, lists and money in several languages and currencies (GBP, JPY, BHD), HUF (shown with decimals although Intl shows none), and refusal of fractional minor units.
 - `core.test.ts`: `getT` per language and namespace, fallback to English, instance reuse, empty translations treated as missing.
 - `catalog-check.test.ts`: the checks, on made-up languages (Polish plural forms, Chinese's single form, mismatched placeholders, markup, email addresses).
 - `catalogs.test.ts`: the real catalogs are complete, there is one error message per `@repo/errors` code, and `languine.json` matches the language list.
@@ -59,4 +59,4 @@ To add a language: add it to `app.i18n.locales` and `names` in `@repo/config`, a
 
 ## Depends on / used by
 
-Depends on `i18next`, `@repo/config` (the language list) and `@repo/env` (`LANGUINE_API_KEY`, `LANGUINE_PROJECT_ID`); `@repo/errors` is a dev dependency (a test checks every error code has a message). Used by emails, notifications, auth and the web and native apps (not built yet).
+Depends on `i18next`, `@repo/config` (the language list), `@repo/money` (decimals per currency for `formatMoney`) and `@repo/env` (`LANGUINE_API_KEY`, `LANGUINE_PROJECT_ID`); `@repo/errors` is a dev dependency (a test checks every error code has a message). Used by emails, notifications, auth and the web and native apps (not built yet).

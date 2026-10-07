@@ -2,7 +2,7 @@
 title: Packages
 description: "Every shared package in the template: what exists, what is planned, in what order, and which products need it."
 type: overview
-summary: "The package roadmap: 11 built, 7 planned in a fixed order with auth second last and storage last, 3 designed for later, and what is deliberately not planned."
+summary: "The package roadmap: 12 built, 6 planned in a fixed order with auth second last and storage last, 3 designed for later, and what is deliberately not planned."
 related:
   - /docs/structure
   - /docs/packages/not-planned
@@ -29,6 +29,7 @@ Every package follows the same rules: it lives under `packages/`, keeps its code
 | 9 | [`analytics`](/docs/packages/analytics) | Privacy-first event catalog and rules for PostHog (EU) | starter-kit, with extensible rules |
 | 10 | [`ui`](/docs/packages/ui) | 22 shadcn web components on the config theme, with Storybook | starter-kit, Storybook from next-forge |
 | 11 | [`observability`](/docs/packages/observability) | Sentry (EU), a privacy scrubber platforms extend, JSON logs to Better Stack, uptime status | starter-kit, with next-forge's per-runtime init |
+| 12 | [`money`](/docs/packages/money) | Exact money maths in whole minor units: split, VAT, allocate | new |
 
 ## Planned, in build order
 
@@ -36,7 +37,6 @@ You asked for **auth second last and storage last**. Everything else comes befor
 
 | # | Package | What it will do | Design from |
 | --- | --- | --- | --- |
-| 12 | [`money`](/docs/packages/money) | Exact money maths in whole minor units: split, VAT, allocate | new |
 | 13 | [`audit`](/docs/packages/audit) | Append-only audit log of who did what | new |
 | 14 | [`jobs`](/docs/packages/jobs) | Background jobs and schedules | new (starter-kit has one cleanup job) |
 | 15 | [`payments`](/docs/packages/payments) | Tenants collecting money: cards and direct debit, webhooks | new |
@@ -44,7 +44,7 @@ You asked for **auth second last and storage last**. Everything else comes befor
 | 17 | [`auth`](/docs/packages/auth) | Better Auth: organizations, admin, 2FA, passkeys, Expo, Stripe billing | starter-kit, plus organizations from next-forge |
 | 18 | [`storage`](/docs/packages/storage) | Private object storage with presigned uploads | starter-kit |
 
-Packages 12 to 16 are proposals: each gets a comparison of the two reference projects (where they have one) and your sign-off before it is built, as the first eleven did.
+Packages 13 to 16 are proposals: each gets a comparison of the two reference projects (where they have one) and your sign-off before it is built, as the first twelve did.
 
 **A cost of this order.** `audit` and `payments` record which organization an action belongs to, but the organization table arrives with auth. Until then they store the organization as a plain id, and auth's migration adds the foreign keys. If you would rather have a real foreign key from the start, move auth up to just before `audit`.
 
@@ -75,13 +75,13 @@ Packages 12 to 16 are proposals: each gets a comparison of the two reference pro
 ## How they depend on each other
 
 ```txt
-typescript-config   env   errors   config
+typescript-config   env   errors   config   money
         \            |       |       |
          `-------- db   internationalization
                      \        |
                       emails ---- notifications
                                       |
-      analytics   ui   observability  money   audit   jobs   payments   documents
+      analytics   ui   observability  audit   jobs   payments   documents
                                       |
                                     auth  ───▶  storage
 ```

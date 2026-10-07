@@ -52,6 +52,8 @@ describe("formatMoney", () => {
     expect(formatMoney(500, "JPY", "en")).toContain("500");
     expect(formatMoney(500, "JPY", "en")).not.toContain(".");
     expect(formatMoney(1234, "BHD", "en")).toContain("1.234");
+    // Intl shows HUF with no decimals, but amounts are stored in the ISO minor unit (100 to 1).
+    expect(formatMoney(1999, "HUF", "en")).toContain("19.99");
   });
 
   it("writes the amount the way the language does", () => {
