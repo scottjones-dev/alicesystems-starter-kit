@@ -1,0 +1,31 @@
+{
+  "name": "@repo/audit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./actions": "./src/actions.ts",
+    "./actors": "./src/actors.ts",
+    "./details": "./src/details.ts",
+    "./read": "./src/read.ts",
+    "./record": "./src/record.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run --exclude **/*.integration.test.ts",
+    "test:integration": "vitest run integration"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "drizzle-orm": "^0.45.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/env": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.1",
+    "vitest": "^5.0.3"
+  }
+}

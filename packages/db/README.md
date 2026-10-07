@@ -6,7 +6,7 @@ Database layer: Drizzle ORM on PostgreSQL (node-postgres).
 
 Only the API talks to Postgres. This package owns the client, the column helpers, the migrations and the test helper, so the data model lives in one place. The reasoning is in [`docs/content/docs/db.md`](../../docs/content/docs/db.md).
 
-It has **no tables yet**: the first ones arrive with auth, and each platform adds its own.
+Its first table is `audit_log` (behaviour in [`@repo/audit`](../audit/README.md)); auth's arrive with auth, and each platform adds its own.
 
 ## What's inside
 
@@ -38,7 +38,9 @@ const rows = await db.select().from(widget);
 1. Create `src/schemas/<name>.ts` with `pgTable`, starting from `id()`, `createdAt()` and `updatedAt()`, and use `oneOf()` for fixed-value columns.
 2. Add `"./schemas/*": "./src/schemas/*.ts"` to this package's `exports` the first time.
 3. `pnpm db:generate`, read the generated SQL, then `pnpm db:migrate`.
-4. Add a block for it in `src/db.integration.test.ts`.
+4. Add a block for it in `src/db.integration.test.ts` (or, for a package's own table, an integration test in that package using `createTestDatabase`).
+
+Something Drizzle cannot describe (a trigger, a function) goes in a hand-written migration made with `pnpm exec drizzle-kit generate --custom --name=<what>`; `audit_log_append_only` is an example.
 
 ## Run it
 
@@ -71,4 +73,4 @@ Postgres runs in Docker: `pnpm infra:postgres:up` (see [`infra/postgres`](../../
 
 ## Depends on / used by
 
-Depends on `@repo/env`, `drizzle-orm`, `pg`, `zod`, and `drizzle-kit` for migrations. Used by the API app and by auth (not built yet).
+Depends on `@repo/env`, `drizzle-orm`, `pg`, `zod`, and `drizzle-kit` for migrations. Used by the API app, by `@repo/audit` (which reads and writes the `audit_log` table) and by auth (not built yet).
