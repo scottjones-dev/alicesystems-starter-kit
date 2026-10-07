@@ -1,0 +1,51 @@
+---
+title: Payments
+description: "Tenants collecting money from their customers: card payments and direct debit, with verified webhooks."
+type: reference
+summary: "Planned, build order 15. A provider interface with Stripe (cards, Terminal, Connect) and GoCardless (direct debit), idempotent calls, signature-checked webhooks and a payment state machine. Not the platform's own subscription billing."
+related:
+  - /docs/packages/index
+  - /docs/packages/money
+  - /docs/packages/auth
+  - /docs/packages/jobs
+---
+
+**Status:** planned, build order 15. **Design from:** new. next-forge's `payments` is a Stripe client wrapper for charging its own customers, which is the other half of the problem (below).
+
+## Two different jobs called "payments"
+
+1. **Platform billing: our tenants pay us** for the software. This is handled by the Better Auth Stripe plugin inside `@repo/auth`: one subscription per organization.
+2. **Tenant collections: our tenants collect money from their customers.** A pub taking card payments, a nursery collecting fees by direct debit, a field service company invoicing a customer. **This package.**
+
+They have different keys, different webhooks and different legal duties, so they stay apart. The money manager does not collect payments; it reads bank accounts (see `banking`).
+
+## Requirements
+
+- Tenants receive the money themselves: our platform must not hold their funds.
+- We never see or store card numbers.
+- Every provider call is safe to retry (idempotency keys), and every webhook is safe to receive twice.
+- A payment moves through known states and an impossible move is refused.
+- The pub's card terminal keeps working when the internet drops, within the terminal's own offline rules.
+
+## Design
+
+- **A `PaymentProvider` interface** with two adapters: **Stripe** (online cards, Terminal readers for the pub, Connect so each tenant has their own Stripe account) and **GoCardless** (Direct Debit mandates and collections, for nursery fees and recurring invoices).
+- **State machine:** `pending`, `authorised`, `paid`, `failed`, `refunded` and `disputed`, each move written to the audit log and every amount a `Money` value.
+- **Inbound webhooks live here:** verify the signature, record the provider's event id first (so a duplicate is ignored), then hand processing to `@repo/jobs` and answer quickly.
+- **Reconciliation job** compares our records with the provider's daily and reports differences.
+- **Keys:** one Stripe platform account serves both billing and Connect; the GoCardless token is per environment. Both are optional and the package stays off without them.
+
+## Order cost
+
+Payments records the organization as a plain id until auth adds the foreign key, as `audit` does.
+
+## Trade-offs
+
+- Two providers mean two sets of states and webhooks mapped onto one. The alternative, Stripe only, would miss direct debit, which is what UK nurseries and recurring invoices want.
+- Connect gives tenants their own accounts and keeps us out of holding money, at the cost of tenant onboarding steps and provider fees.
+
+## Open questions
+
+- Connect account type (Standard, Express or Custom) and whether we take a platform fee.
+- Strong Customer Authentication behaviour for UK cards, tested in Stripe's test mode.
+- Whether a licensed partner is needed for anything beyond what Stripe and GoCardless already cover. Check this before launch; I am not giving legal advice.

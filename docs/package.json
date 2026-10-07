@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev --port 3500",
+    "dev": "next dev --port 1000",
     "format": "biome format --write",
     "lint": "biome check",
     "start": "next start",

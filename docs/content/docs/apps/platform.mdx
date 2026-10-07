@@ -1,0 +1,37 @@
+---
+title: Platform
+description: "The signed-in web app."
+type: reference
+summary: "A Next.js app (apps/platform) scaffolded with create-next-app: the signed-in product. Today one page; sign-in arrives with auth. Its address is the WEB_ORIGIN the API and emails use."
+related:
+  - /docs/apps/api
+  - /docs/apps/website
+  - /docs/packages/auth
+---
+
+## What it is
+
+`apps/platform` is where tenants and their staff use the product, behind a sign-in. It was created with `pnpm create next-app` (App Router, `src/` directory, Tailwind) and fitted into the monorepo.
+
+## Requirements
+
+- Everything signed-in lives here, in the organization the person is working in.
+- It talks to the API for all data; it never connects to the database itself.
+- Email links (verify email, reset password, accept invitation) land here.
+
+## Design
+
+- **Its address is `WEB_ORIGIN`.** That is the one browser origin the API allows through CORS with credentials, the base for links in emails, and the origin auth allows for redirects and passkeys. In development it is port 3000.
+- **The platform admin tools** (the SaaS owner's support view) will be routes in this app, behind the admin role and two-factor, rather than a third app. If they outgrow it, they can be split out.
+- **Separate from the website**, so the signed-in app has its own deployment, caching and security headers.
+- **Workspace packages are compiled with the app** through `transpilePackages`.
+- Fitted into the monorepo like the website: scaffold files removed, `tsconfig.json` extends the shared Next.js preset.
+
+## Trade-offs
+
+- Email links land on a different origin from the public website, so the legal links in emails (privacy, terms) point at pages that must exist on the platform too, or the footer links need their own base address.
+- Putting the admin tools in the same app saves a deployment, at the cost of shipping their code to the same bundle pipeline (they are server-side checked, but are still part of the app).
+
+## Not built yet
+
+Sign-in and sessions (auth), the shared components (ui), organization switching, and the product screens of each platform.

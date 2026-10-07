@@ -1,0 +1,25 @@
+---
+title: Structure
+description: "How the monorepo is laid out: apps, packages and local infrastructure."
+type: overview
+summary: "A map of the monorepo workspaces."
+related:
+  - /docs/apps/api
+  - /docs/packages/env
+---
+
+StarterKit is a pnpm and Turborepo monorepo. Every workspace keeps its code under `src/` and has its own README.
+
+| Folder | What it holds |
+| --- | --- |
+| `apps/*` | Things that run: [API](/docs/apps/api), [website](/docs/apps/website), [platform](/docs/apps/platform), [native app](/docs/apps/native), [docs](/docs/apps/docs) |
+| `packages/*` | Shared code, each its own workspace. See [packages](/docs/packages/env) |
+| `infra/*` | Local services in Docker: [Postgres](/docs/infra/postgres), [storage](/docs/infra/storage) |
+
+```txt
+website / platform / native ──▶ api ──▶ Postgres (db)
+                                  └──▶ object storage
+config + env + errors are used by everything
+```
+
+The API is the only thing that touches the database and storage.

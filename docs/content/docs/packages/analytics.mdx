@@ -1,0 +1,51 @@
+---
+title: Analytics
+description: "A privacy-first event catalog and rules for product analytics (PostHog, EU region), shared by web and native."
+type: reference
+summary: "Built. A strict allow-list of events with coarse values that refuses free text when it is defined, URL scrubbing so one-time links never leave the app, and PostHog settings that store nothing until consent."
+related:
+  - /docs/packages/index
+  - /docs/packages/observability
+  - /docs/packages/auth
+---
+
+**Status:** built. **Design from:** starter-kit. next-forge only re-exports `posthog-js` and Vercel Analytics, with no rules about what may be sent.
+
+## What it is
+
+`@repo/analytics` decides **what** may be sent to the analytics service, not how. It holds the event catalog and the privacy rules, with no analytics SDK at run time: each app installs its own (`posthog-js` for web, `posthog-react-native` for native) and passes these rules into it, so web and native cannot drift apart.
+
+## Requirements
+
+- We learn how the product is used, but **no personal data leaves the app**: no names, emails, free text, children's details, amounts or bank data.
+- A developer cannot add a free-text property to an event, by accident or on purpose.
+- One-time links (password reset, magic link, invitation, account deletion) never reach the service, not even in the "previous page" values the SDK attaches to later events.
+- EU data storage, and nothing stored on the visitor's device before they agree.
+
+## Design
+
+- **Allow-list, not block-list.** An event is a strict schema whose fields are only enums, booleans and literals (`"under_15"`, not 12 seconds). A property that is not listed cannot be sent.
+- **The rule is checked when a catalog is created.** `createCatalog(schemas)` throws if any field could hold free text (a string, a number) or if an event is not strict, so an unsafe event cannot be defined, not just rejected later. A platform adds its own events with `createCatalog({ ...baseSchemas, invoice_sent: ... })`.
+- **`createTracker(capture)`** returns a typed `track(name, props)` over any SDK's capture call: it validates, drops what does not match and says whether it sent. Typos in event names and values are compile errors.
+- **`beforeSend` is the backstop**, for the SDK's `before_send`: it drops events from pages that carry a one-time link and hides secrets in every address-like property by name (`*url`, `*pathname`, `*referrer`), because the SDK adds history properties we did not choose, including inside the person bags `$set` and `$set_once`. A property denylist removes names that must never be sent.
+- **A platform extends the rules, not the package:** `createAnalyticsRules({ secretSections, deniedProperties })` adds its own one-time-link pages and forbidden property names to the defaults.
+- **Web settings** (`posthogWebOptions({ consented })`): events go through our own domain (`/ingest`), nothing is stored until consent (memory only before it), no autocapture, no session recording, identified profiles only, and the browser's do-not-track is respected. The options are checked against the SDK's own types.
+- **Native** passes `rules.beforeSend` into `posthog-react-native`; the catalog and tracker are the same.
+- **The project keys** (`NEXT_PUBLIC_POSTHOG_TOKEN`, `EXPO_PUBLIC_POSTHOG_TOKEN`) are public by design, optional, and defined with the env tooling. With none set, analytics is off. The data host is fixed to the EU, not configurable.
+
+## Changes from starter-kit
+
+- Its dependency on `@repo/db` (domain entry kinds) is gone; the catalog is generic.
+- The free-text rule moved from a test into `createCatalog`, so it protects platform catalogs too.
+- Rules and one-time-link pages are extensible, and the page list covers invitations and magic links.
+- The URL scrubbing lives here. Starter-kit shared it through its errors package; ours is not there, and observability is built later, so it moves into a shared module when that second user arrives.
+
+## Trade-offs
+
+- A strict catalog means every new measurement is a small code change. That is the point for products holding children's and financial data.
+- Without session replay or autocapture we lose some insight. Both can capture what is on screen, so they stay off.
+- The sensitive-parameter pattern for addresses is broad (`code`, `key`, `state`), so it sometimes hides a harmless parameter. For analytics that is the right way to be wrong.
+
+## Not verified
+
+The SDK has not been run against a real PostHog project: the options are type-checked against `posthog-js`, and the rules are tested as pure functions. Check one real event end to end when the web app exists.

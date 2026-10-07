@@ -1,0 +1,41 @@
+---
+title: Observability
+description: "Error reporting and logs for the API, web and native apps, with a privacy scrubber each platform can extend."
+type: reference
+summary: "Planned, build order 11. Sentry (EU) for errors, a scrubber with a generic base list that platforms extend, and structured logs with request ids."
+related:
+  - /docs/packages/index
+  - /docs/packages/errors
+---
+
+**Status:** planned, build order 11. **Design from:** starter-kit's `@repo/errors` Sentry rules, rewritten. next-forge's `observability` is a poor model here: Sentry with Session Replay, local variables in stack traces and console output all switched on, plus BetterStack logs.
+
+## What it is
+
+`@repo/observability` is how we find out about real failures without sending personal data anywhere. It shares one set of Sentry options between the API, the website and the native app, and one small structured logger.
+
+## Requirements
+
+- Errors are reported with a request id, so a user who quotes it can be found.
+- Nothing personal reaches Sentry: no request bodies, cookies, auth headers, one-time links, emails, names, amounts.
+- What counts as sensitive differs per platform (a child's name, a card detail, a till total), so the rules are extensible without editing the package.
+- No replay, screenshots, view hierarchy, profiling or local variables, because each can capture what is on screen or in memory.
+- Logs are structured (one JSON object per line) and carry the request id.
+
+## Design
+
+- **`baseSentryOptions({ dsn, environment, release })`** returns the options all three apps pass to `Sentry.init`. No DSN means nothing is sent.
+- **The scrubber** (`scrubEvent`, `scrubBreadcrumb`, `scrubUrl`) comes from starter-kit's rules, with two changes: the sensitive-key list is a short generic base (passwords, tokens, cookies, email, phone), and `createScrubber({ extraKeys, secretPaths })` lets a platform add its own words. Starter-kit's list included `child`, `baby`, `note`, `code` and `pin`, which suited a baby diary and also hid harmless keys such as `statusCode`. Tests cover each leak path: bodies, cookies, URLs including percent-encoded paths, and emails inside messages.
+- **URL scrubbing is shared with `@repo/analytics`.** Analytics already has the tested address scrubbing (percent-encoded paths, repeated slashes, tokens in queries and fragments). When this package is built, the shared parts move into one small module that both import, so the tricky logic exists once. That is the second user, which is the point to extract it.
+- **The logger** writes JSON lines with the request id and redacts the same keys. Where logs are shipped is a hosting decision (CloudWatch on AWS per the hosting plan).
+- **No SDK in the scrubber**, so the rules are pure functions and identical in all runtimes.
+
+## Trade-offs
+
+- Fail closed: it is better to hide a harmless value than to send a name.
+- With no replay or local variables, debugging some bugs takes more reproduction effort. That is the price of not holding personal data in a third party.
+
+## Open questions
+
+- Sentry organization region and who owns the account.
+- A log destination, and how long to keep logs.

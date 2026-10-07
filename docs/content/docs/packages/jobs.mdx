@@ -1,0 +1,43 @@
+---
+title: Jobs
+description: "Background jobs and schedules: work that must happen later, on a timer, or again after a failure."
+type: reference
+summary: "Planned, build order 14. A typed job definition, enqueue and schedule API on a Postgres-backed queue, so no new service is needed to start."
+related:
+  - /docs/packages/index
+  - /docs/packages/db
+  - /docs/infra/redis
+---
+
+**Status:** planned, build order 14. **Design from:** new. Starter-kit has one cleanup job inside its API app and no queue. next-forge has none.
+
+## What it is
+
+`@repo/jobs` runs work outside a request: reminder emails, nightly cleanup, monthly invoice runs, end-of-day reports, retrying a failed webhook.
+
+## Requirements
+
+- A job that fails is retried with backoff, and the failure is visible.
+- **At least once, so every job is safe to run twice** (idempotent). The package helps with a per-job key.
+- Scheduled jobs (cron) and delayed jobs ("send in 3 days").
+- A job can be queued **in the same database transaction** as the change that needs it, so nothing is lost if the process dies in between.
+- Runs inside the API process at first and as a separate worker later, with no code change.
+- A fair share per organization, so one tenant's big invoice run cannot starve the rest.
+
+## Design
+
+- **`defineJob(name, schema, handler)`**, **`enqueue(job, payload, options)`** and **`schedule(name, cron)`**, typed from the job's zod schema, in the same style as notification events.
+- **Queue on Postgres** (the pg-boss library): jobs are rows, enqueue joins the caller's transaction, and there is nothing new to host, back up or monitor. This is the System Design Primer's "queue" building block at the smallest size that works.
+- **Redis is not needed yet.** Your docs have a Redis page; a Redis queue (BullMQ) is faster and is the next step if throughput demands it, behind the same API.
+- **Tests use a real Postgres** through `createTestDatabase`, covering retry, backoff, scheduling, idempotency keys and the transactional enqueue.
+- Jobs report to `@repo/observability` and write to the audit log where they change business data.
+
+## Trade-offs
+
+- A Postgres queue is slower than Redis and shares the database's capacity. At the volumes of a nursery or a pub it is far below any limit, and the single database remains one thing to run.
+- At-least-once delivery pushes idempotency onto every job. That is cheaper and safer than pretending exactly-once exists.
+
+## Open questions
+
+- pg-boss or a small queue of our own. pg-boss is mature, but I have not yet compared it against writing the few hundred lines ourselves.
+- Where the worker runs in production (inside the API service, or its own).

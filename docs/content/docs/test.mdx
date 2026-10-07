@@ -1,17 +1,39 @@
 ---
-title: Components
-description: Components
+title: How these docs work
+description: Where pages live, how the sidebar is ordered, and the components you can use.
 ---
 
-## Code Block
+## Adding a page
 
-```js
-console.log('Hello World');
+Pages are Markdown or MDX files in `docs/content/docs`. Every page needs a `title` and `description` in its frontmatter.
+
+- A file such as `packages/env.md` becomes `/docs/packages/env`.
+- A folder groups pages. Add a `meta.json` inside it with a `title` and a `pages` list to control the sidebar order.
+- Use `"---Heading---"` in a `pages` list to add a separator label.
+
+Each package documents a **plan** (requirements, design, trade-offs) so the reasoning survives after the code is written.
+
+## Components
+
+### Code block
+
+```ts
+import { env } from "@repo/env";
+
+console.log(env.DATABASE_URL);
 ```
 
-## Cards
+### Callouts
+
+<Callout>Keep each page about one decision, and say why it was made.</Callout>
+
+### Cards
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card title="Fumadocs" href="https://fumadocs.dev">
+    The framework this site is built with.
+  </Card>
+  <Card title="System Design Primer" href="https://github.com/donnemartin/system-design-primer">
+    The reference we plan with before building.
+  </Card>
 </Cards>

@@ -1,13 +1,42 @@
 ---
-title: Hello World
-description: Your first document
+title: StarterKit developer docs
+description: How the StarterKit monorepo is put together, and the decisions behind each package.
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+StarterKit is a reusable monorepo: a Next.js website, an Expo mobile app and a Hono API, with accounts, Postgres, translations, emails, analytics, error reporting and file storage already wired together. You start a product by copying it and building your own features on top.
 
-## What is Next?
+These docs are for the developers working in it. Each page explains **what a package is, why it exists, and the trade-offs behind it**, so you can change it with confidence.
+
+## How the pieces fit
+
+```txt
+web / native ──▶ api ──▶ Postgres (db)
+                   └──▶ object storage
+config + env + errors are used by everything
+```
+
+The API is the only thing that touches the database and storage. Web and native talk to the API.
+
+## Start here
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card title="Environment variables" href="/docs/packages/env">
+    Validated env per runtime, defined once, with a local setup that needs no accounts.
+  </Card>
+  <Card title="Errors" href="/docs/packages/errors">
+    The one error shape every API response uses, and the Sentry privacy rules.
+  </Card>
+  <Card title="Database" href="/docs/packages/db">
+    Drizzle on PostgreSQL: the client, column helpers and migrations.
+  </Card>
+  <Card title="How these docs work" href="/docs/test">
+    Adding pages, folders and components to this site.
+  </Card>
 </Cards>
+
+## Project rules
+
+- Use the CLI (`pnpm add`, scaffolders) instead of hand-writing what a tool can generate.
+- Code lives under `src/`, and every workspace has a README that stays in sync with the code.
+- Test new logic, and run `pnpm exec ultracite check` before calling a task done.
+- Plan non-trivial work with the System Design Primer, and write the plan down first.

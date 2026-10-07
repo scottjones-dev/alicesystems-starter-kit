@@ -1,0 +1,41 @@
+---
+title: Audit
+description: "An append-only log of who did what, to what, and when."
+type: reference
+summary: "Planned, build order 13. One audit table that Postgres itself refuses to edit or delete, a typed audit() helper, and ids only in the details."
+related:
+  - /docs/packages/index
+  - /docs/packages/db
+  - /docs/packages/auth
+---
+
+**Status:** planned, build order 13. **Design from:** new. Neither reference project has one.
+
+## What it is
+
+`@repo/audit` records the actions somebody may later have to explain: a till void, a refund, a change to a fee, a staff member opening a child's record, a platform admin impersonating a user to help with a support ticket.
+
+## Requirements
+
+- **Append-only, enforced by the database.** An application bug, a script or an admin must not be able to edit or delete a row.
+- Every entry says who (a user, the system, or an admin acting as a user), what, on which record, in which organization, and when.
+- **No personal data in the details**: ids only, never names, notes or amounts that identify a person.
+- Cheap to write, and quick to read for one organization or one record.
+- Retention can differ by organization and by kind of record (childcare records have retention rules; so does a till).
+
+## Design
+
+- **One table**, `audit_log`: UUIDv7 id, `occurred_at` as `timestamptz`, `organization_id` (null for platform-level actions), `actor_id`, `actor_type` (`user`, `system`, `admin`), `acting_as_id` (set when an admin impersonates), `action`, `target_type`, `target_id`, `request_id` and a small `details` JSON.
+- **Postgres refuses changes:** a trigger raises an error on any UPDATE or DELETE, and the application role has no such permission. Deleting old rows for retention is done by a separate, logged maintenance job that drops whole expired partitions.
+- **`audit(db, entry)`** is typed by a catalog of actions (`till.void`, `child.record_viewed`, `admin.impersonation_started`), so a typo or a missing field fails to compile. A platform adds its own actions beside its own code.
+- **Written in the same transaction** as the change it describes, so there is never a change without its entry or an entry without its change.
+- **Monthly partitions** once volume warrants, so retention is dropping a partition.
+
+## Depends on, and the auth order
+
+It needs only `@repo/db` and `@repo/errors` (for the request id). It records the organization as a plain id; the foreign key to the `organization` table is added by auth's migration, because auth is built after this package. Audit reads are checked by the API against the caller's role in that organization.
+
+## Trade-offs
+
+- Every audited write is one more insert in the same transaction. The audited actions are rare compared with ordinary reads, so the cost is small.
+- Ids only in the details means an investigation looks up names separately, and an erased person's entries become anonymous, which is the intended privacy outcome.

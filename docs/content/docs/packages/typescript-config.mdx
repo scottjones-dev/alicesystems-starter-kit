@@ -1,0 +1,41 @@
+---
+title: TypeScript config
+description: "Strict, shared tsconfig presets that every workspace extends."
+type: reference
+summary: "Five JSON presets (base, node, nextjs, react-library, expo) in @repo/typescript-config."
+related:
+  - /docs/packages/config
+---
+
+## What it is
+
+`@repo/typescript-config` is a JSON-only package. Every workspace extends one preset instead of repeating compiler options, so strictness is the same everywhere.
+
+| Preset | For |
+| --- | --- |
+| `base.json` | the strict defaults the others build on |
+| `node.json` | the API and server-side packages |
+| `nextjs.json` | Next.js apps |
+| `react-library.json` | shared React packages (UI, emails) |
+| `expo.json` | the native app |
+
+```json
+{ "extends": "@repo/typescript-config/node.json", "include": ["src"] }
+```
+
+## Requirements
+
+- One setting changed in one place changes every workspace.
+- Indexed access is checked: `array[0]` is `T | undefined` until you check it.
+- No package-specific paths in a shared preset.
+
+## Design
+
+- **Separate from `@repo/config`.** Presets are JSON that tools read; `@repo/config` is TypeScript constants and generated stylesheets. Keeping them apart means a change to the brand never touches compiler settings. This is next-forge's layout; the presets themselves come from starter-kit.
+- **`lib` is ES2025**, because Node 24 supports it and it gives `Intl.DurationFormat`, used for "15 minutes" in emails.
+- **`noUncheckedIndexedAccess` is on** in `base.json`.
+
+## Trade-offs
+
+- Starter-kit kept the presets inside `@repo/config` to have fewer packages. One more workspace is a small price for a package that never changes for the wrong reason.
+- There are no tests: the presets are exercised by the `check-types` task of every workspace that extends them.

@@ -1,3 +1,8 @@
+---
+title: Environment variables
+description: "Define each variable once: validation, the Infisical seed, the local .env and .env.example are all derived from it."
+---
+
 # Environment variables: plan
 
 ## Requirements

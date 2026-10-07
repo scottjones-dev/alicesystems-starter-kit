@@ -1,0 +1,4 @@
+{
+  "title": "Infrastructure",
+  "pages": ["postgres", "redis", "mailpit", "novu", "storage"]
+}

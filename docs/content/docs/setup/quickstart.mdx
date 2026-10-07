@@ -1,0 +1,20 @@
+---
+title: Quickstart
+description: Run StarterKit locally in a few commands, with no accounts.
+type: guide
+summary: The local setup commands.
+related:
+  - /docs/setup/prerequisites
+  - /docs/packages/env
+---
+
+```bash
+pnpm install
+pnpm setup:local          # writes a .env with local settings and random secrets
+pnpm infra:up             # Postgres + storage (Docker)
+pnpm db:migrate:local     # create tables
+pnpm storage:init:local   # create the local bucket
+pnpm dev:local            # API, website and app
+```
+
+`setup:local` creates a root `.env` with disposable values. See [environment variables](/docs/packages/env) for how that file is built.

@@ -1,0 +1,35 @@
+---
+title: Not planned
+description: "next-forge packages and starter-kit parts that are deliberately not in the template, and where each need goes instead."
+type: reference
+summary: "What was considered and left out, with a reason, so the decision is not re-argued."
+related:
+  - /docs/packages/index
+---
+
+These are left out on purpose. Each can be added later with its own plan page.
+
+## From next-forge
+
+| Package | Why not | Where the need goes |
+| --- | --- | --- |
+| `ai` | None of the four products needs a model to work. | Added when a product has a concrete use (for example categorising transactions), opt-in and with redacted input. |
+| `cms` | Marketing content is not part of the platform. | The website app, when it needs one. |
+| `collaboration` | Shared cursors and presence in documents (Liveblocks) are not our problem. | `realtime` covers live screens. |
+| `feature-flags` | Vercel's toolbar flags are tied to Vercel. | Plan limits come from the Stripe plan in `auth`; per-organization switches can be a column. |
+| `next-config` | Next.js settings and a URL key set. | Part of the website app. |
+| `rate-limit` | Upstash Redis for rate limiting. | The API app's middleware, stored in Postgres like starter-kit's; `auth` has its own for sign-in. |
+| `security` | Arcjet and security headers for Next.js. | Headers in the website app; abuse protection when traffic shows a need. |
+| `seo` | Metadata helpers for a marketing site. | The website app. |
+| `webhooks` | Svix, for sending webhooks to customers. | Inbound webhooks live in `payments`. Outbound webhooks arrive with a customer API and API keys. |
+| `design-system` | Renamed. | `ui`. |
+| `email` | Renamed, and replaced. | `emails` and `notifications`. |
+| `database`, `internationalization`, `observability`, `storage`, `payments`, `analytics`, `auth` | Same ideas, different shape. | See the roadmap. |
+
+## From starter-kit
+
+| Part | Why not (yet) |
+| --- | --- |
+| New-location sign-in email, password-changed and two-factor-changed notices | Not requested; each is one event and one email template to add when auth sends it. |
+| Machine translation through Languine | Set up and untested; hand translation works meanwhile. |
+| Domain wording (a baby diary's keys, pages and copy) | The template is domain-neutral; each platform brings its own. |

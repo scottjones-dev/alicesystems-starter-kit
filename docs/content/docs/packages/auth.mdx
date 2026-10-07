@@ -1,0 +1,80 @@
+---
+title: Auth
+description: "Better Auth with organizations, platform admin, two-factor, passkeys, social sign-in, Expo and Stripe billing."
+type: reference
+summary: "Planned, build order 17 (second last). A createAuth factory so each platform switches features on without editing the package. A first version is parked on the wip/auth branch and is rebuilt on top of notifications."
+related:
+  - /docs/packages/index
+  - /docs/packages/notifications
+  - /docs/packages/internationalization
+  - /docs/packages/payments
+---
+
+**Status:** planned, build order 17, second last. A first version exists on the `wip/auth` git branch (it type-checks; it has no migration and no integration tests yet). **Design from:** starter-kit's hardening, with organizations from next-forge.
+
+## What it is
+
+`@repo/auth` is sign-in, accounts, tenants and the platform admin, built on Better Auth.
+
+## Requirements
+
+- Every platform is multi-tenant: a nursery, a pub or a service company is an **organization**, and a person can belong to several.
+- Two kinds of power, kept apart: the **platform admin** (the SaaS owner, for support) and **organization roles** (a tenant's own staff).
+- Web and Expo clients talk to one API. Two-factor and passkeys for staff who handle money and children's data.
+- Google, Microsoft and Apple sign-in. A provider is on only when both its id and secret are set; Apple stays off until the Apple Developer account exists.
+- Tenants pay us a subscription (Stripe), one per organization.
+- Better Auth's own error messages in the user's language.
+- Testable against a real database.
+
+## Design
+
+`createAuth(options)` is a factory. Nothing is read from the environment inside it: the caller passes the secret, URLs, database adapter, emails and plans. Tests build their own instance with fake values, plus a **test-only** instance with the `testUtils` plugin (Better Auth advises keeping it out of the production config). `src/auth.ts` is the one place that reads the environment.
+
+| Plugin | Why |
+| --- | --- |
+| `organization` | tenants, members, invitations, roles; `activeOrganizationId` on the session |
+| `admin` | platform admin: list users, ban, impersonate, revoke sessions |
+| `twoFactor`, `passkey` | strong sign-in; **required for the platform admin role** |
+| `magicLink` | sign-in by email, only for existing accounts; refused for users with two-factor |
+| `lastLoginMethod` | remembered in the database, not a cookie |
+| `expo` | mobile sessions |
+| `i18n` | Better Auth's own error messages, by the user's saved language then the browser |
+| `openAPI` | endpoint descriptions for our own API docs page; its built-in page is off |
+| `stripe` | subscriptions per organization; on only when the Stripe keys are set |
+| `testUtils` | test-only: create users and sessions without signing in |
+
+Decisions:
+
+- **Emails go through `notify()`.** The five auth emails (verify, reset, magic link, delete account, organization invitation) are `@repo/notifications` events, so `createAuth` takes a small emails object and the app wires it to `notify()`. Development prints nothing: the links land in Mailpit.
+- **Platform admin needs two-factor.** A hook refuses any `/admin/*` call from an admin without it, and impersonation sessions last 30 minutes. Every impersonation is written to `@repo/audit`.
+- **Magic links cannot bypass two-factor.** Better Auth's second step only guards passwords, so a hook refuses a magic-link sign-in for a user who has it.
+- **Account linking trusts Google only.** Microsoft and Apple can report unverified emails, and a trusted provider is linked by email with no further check.
+- **Ids are UUIDs made by Postgres.** The schema comes from the Better Auth CLI and is normalised after generation (time zones on every timestamp, UUIDv7 defaults), by a tested function so nobody edits generated code by hand.
+- **Roles are the platform's.** The defaults are owner, admin and member; a nursery adds manager, room leader, practitioner and parent through the plugin's access control.
+- **Billing here is platform billing only.** Collecting money for tenants is `@repo/payments`.
+- **Plans are the app's.** The template ships none.
+
+## Work to do when it is rebuilt
+
+- Remove auth's own `WEB_ORIGIN` key: it moved to the base keys.
+- Replace the console emails with `notify()` and the new email props.
+- Generate and review the migration, add the foreign keys that `audit` and `payments` were waiting for, and write the integration tests (sign-up and verify, wrong password, the sign-in rate limit, magic link with two-factor, the admin guard, organization creation and invitation).
+- Make the generated schema pass lint.
+- Staff PIN sign-in for a shared till is a different pattern (`username` plus `multiSession`) and is designed with the pub POS, not here.
+
+## Threats and answers
+
+| Threat | Answer |
+| --- | --- |
+| Password guessing | 5 sign-ins a minute per client address, stored in the database |
+| Rate limit skipped because the address is unknown | `CLIENT_IP_HEADER` is required |
+| Provider tokens stolen from a database leak | encrypted at rest |
+| Session kept after a password reset | every session is revoked |
+| Takeover through an unverified provider email | only Google is trusted for linking |
+| Support impersonation abused | admin needs two-factor, short sessions, every use audited |
+| Magic link skips two-factor | refused in a before hook |
+
+## Trade-offs
+
+- Building auth this late means `audit` and `payments` first store the organization as a plain id; the foreign keys arrive here.
+- Several plugins are on by default, so the schema has 11 tables from day one. A platform that does not want passkeys or billing still has the tables, unused.

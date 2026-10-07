@@ -1,0 +1,38 @@
+---
+title: Realtime
+description: "Live updates to screens: kitchen and bar displays, dispatch boards, live room counts."
+type: reference
+summary: "Designed, built with the first product that needs it. Server-sent events fed by Postgres notifications first, a managed service only if that is outgrown."
+related:
+  - /docs/packages/index
+  - /docs/packages/sync
+---
+
+**Status:** designed, not scheduled. **Design from:** new. next-forge's `collaboration` (Liveblocks) is for shared cursors in documents, which is a different need.
+
+## What it is
+
+When something changes, the screens that show it update without a refresh: an order appears on the kitchen display, a job is assigned on the dispatch board, a child signs in to a room.
+
+## Requirements
+
+- A new order shows on the kitchen screen in about a second.
+- A screen that loses its connection catches up on what it missed when it returns, so no event is silently lost.
+- A person sees only their own organization's events.
+- Works on one API instance and keeps working when there are several.
+
+## Design
+
+- **Server-sent events** from the API (one-way, over plain HTTP, easy to proxy), not WebSockets, because screens mostly listen.
+- **Postgres LISTEN and NOTIFY** tell each API instance that something changed, so the API instances fan out to their connected screens without a new service.
+- **Catch-up by cursor:** each event has a sequence id; a reconnecting client sends the last one it saw and receives the rest. The notification only says "something changed"; the data comes from the database.
+- **Authorisation on connect**, scoped to the organization, and re-checked on a timer so a removed member is disconnected.
+
+## Trade-offs
+
+- SSE is one-way. Anything the screen sends goes by ordinary API calls, which is what we want for audit and validation.
+- Postgres notifications are fine at pub or nursery scale. If a platform ever needs thousands of simultaneous screens, a managed service (Ably, Pusher) can replace the fan-out behind the same interface.
+
+## Needs first
+
+The API app and a platform that uses it. This is why the package waits.

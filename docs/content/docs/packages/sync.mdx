@@ -1,0 +1,43 @@
+---
+title: Sync
+description: "Working offline: a local copy of the data on the device and a queue of changes that is sent when the network returns."
+type: reference
+summary: "Designed, built with field service. The biggest open design in the template: a local database, an outbox of changes with idempotency keys, and conflict handling through the existing STALE_VERSION error."
+related:
+  - /docs/packages/index
+  - /docs/packages/errors
+  - /docs/packages/realtime
+---
+
+**Status:** designed, not scheduled. **Design from:** new. Neither reference project does offline.
+
+## What it is
+
+A field engineer in a cellar with no signal, a pub till when the internet drops on a Saturday night, a nursery tablet in a room with weak wifi must keep working. This package is how the native app (and any tablet web app) keeps a local copy of what it needs and sends its changes later.
+
+## Requirements
+
+- **The till never stops selling.** An order is saved on the device first, whatever the network does.
+- Changes made offline are applied exactly once, even if the app retries.
+- Two devices editing the same record is detected, never silently overwritten.
+- Only the data a device needs is copied to it (a technician's jobs, not every customer), both for size and for privacy if a device is lost.
+- The server stays the source of truth.
+
+## Design
+
+- **A local SQLite database** on the device (Expo SQLite) holding the records the user can reach.
+- **An outbox:** every change is written locally and added to a queue with a client-made idempotency key; a sender posts them in order and the server records processed keys, so a retry is harmless.
+- **Versions on every synced row.** An edit carries the version it was based on (`If-Match`); if it is stale the API answers `STALE_VERSION` (412, already in `@repo/errors`), and the app fetches the current copy and lets the user or a rule resolve it.
+- **Pull by cursor:** the device asks "what changed since sequence N" for its scope, the same cursor idea as `realtime`.
+- **Rules per record type:** orders are append-only and merge freely; a job's notes merge by field; an invoice total is never edited offline.
+- **Existing options are compared first:** PowerSync, ElectricSQL and Zero are real products that solve parts of this. Building a small, explicit protocol ourselves keeps the rules visible; I will compare them properly when the first platform needs it.
+
+## Trade-offs
+
+- An outbox and versions cost every synced table a version column and every write path an idempotency check. They are only added to tables that sync.
+- Offline card payments depend on the terminal's own offline limits; the package can queue the order but cannot make a payment succeed without the network.
+
+## Open questions
+
+- Build the protocol or adopt a product, decided with field service.
+- Encryption of the local database on a device that may be lost.

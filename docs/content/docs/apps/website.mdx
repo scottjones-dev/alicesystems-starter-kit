@@ -1,0 +1,35 @@
+---
+title: Website
+description: "The public marketing website."
+type: reference
+summary: "A Next.js app (apps/website) scaffolded with create-next-app: the public site, with no sign-in. Today one page that reads the product name from config."
+related:
+  - /docs/apps/platform
+  - /docs/packages/config
+---
+
+## What it is
+
+`apps/website` is the public face of the product: what it is, pricing and the legal pages. It was created with `pnpm create next-app` (App Router, `src/` directory, Tailwind) and fitted into the monorepo.
+
+## Requirements
+
+- Fast and indexable by search engines, with no sign-in.
+- The product name, description and languages come from `@repo/config`, never typed into pages.
+- Deployable and cacheable on its own, separate from the signed-in app.
+
+## Design
+
+- **Separate from the platform.** The marketing site and the product have different jobs, caches, release timing and security needs, so they are two apps. The cost is two deployments.
+- **Next.js App Router with static pages** wherever possible.
+- **Workspace packages are compiled with the app** through `transpilePackages`, because they ship TypeScript source.
+- **Port 3001** in development (the platform is 3000).
+- The scaffold's own `pnpm-workspace.yaml`, `biome.json` and pinned TypeScript were removed: the repo root owns the workspace, lint and the TypeScript version, and `tsconfig.json` extends `@repo/typescript-config/nextjs.json`.
+
+## Trade-offs
+
+- Two Next.js apps repeat some setup. Shared pieces move into packages (`@repo/ui`, `@repo/config`) rather than being copied.
+
+## Not built yet
+
+The real pages, the shared components, the legal pages (privacy and terms, which emails link to), the consent banner and analytics, and the language switcher.

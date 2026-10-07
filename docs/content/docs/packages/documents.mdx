@@ -1,0 +1,46 @@
+---
+title: Documents
+description: "PDF and CSV output: invoices, statements, quotes and reports, in the reader's language."
+type: reference
+summary: "Planned, build order 16. Typed PDF templates rendered without a browser, branded from config, translated, plus a safe CSV writer. Returns bytes; saving them is storage's job."
+related:
+  - /docs/packages/index
+  - /docs/packages/money
+  - /docs/packages/emails
+  - /docs/packages/storage
+---
+
+**Status:** planned, build order 16. **Design from:** new, shaped like `@repo/emails`. Neither reference project generates documents.
+
+## What it is
+
+`@repo/documents` turns typed data into a file a person keeps or sends: a nursery's monthly invoice, a field service quote or job sheet, a pub's end-of-day Z-report, a money statement, and CSV exports for accountants.
+
+## Requirements
+
+- A registry of typed templates: `renderDocument("invoice", props)` returns bytes, and a missing prop is a compile error.
+- In the reader's language and currency, using the same formatting as the rest of the app, and branded from `@repo/config`.
+- No headless browser in production if we can avoid it: slow to start, big, and another thing to patch.
+- **Every script must render**, including Chinese. That needs fonts with the right glyphs embedded.
+- A CSV written for a spreadsheet must not run formulas from data (a customer name starting with `=` must not execute).
+
+## Design
+
+- **React-based PDF rendering** (the react-pdf library): templates are React components like emails, run in plain Node with no browser. A headless-browser approach (HTML to PDF) is the alternative, with better CSS but a heavy runtime.
+- **Pure functions in, bytes out.** The package never stores anything; the caller saves the bytes through `@repo/storage`, which is built last, so until then documents are returned or streamed.
+- **Amounts come from `@repo/money`** and are written by `formatMoney`; dates by the internationalization formatters.
+- **`toCsv(rows, columns)`** quotes correctly and neutralises cells that start with `=`, `+`, `-` or `@`.
+- **Fonts:** Latin fonts ship by default; CJK support adds a Noto font subset, which is large, so it is loaded only for languages that need it.
+
+## Tests
+
+Each template renders in every language; the extracted text contains the right amounts and names; CSV escapes quotes, commas, newlines and formula starts; totals on a document equal the sum of its lines (through `money`).
+
+## Trade-offs
+
+- React-PDF supports a subset of CSS and layout. Complex documents may force the browser route for one template; the registry hides which engine a template uses.
+- Machine-translated document text has the same unverified-translation caveat as the rest of the catalogs.
+
+## Open questions
+
+- Whether any product needs electronic signatures (a field service job sheet, a nursery contract). That is a separate feature.

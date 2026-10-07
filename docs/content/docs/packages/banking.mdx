@@ -1,0 +1,42 @@
+---
+title: Banking
+description: "Reading a person's bank accounts through Open Banking, for the money manager."
+type: reference
+summary: "Designed, built with the money manager. Account connection through a licensed provider, transaction import with de-duplication, and categorisation rules. Has regulatory questions that need an answer before launch."
+related:
+  - /docs/packages/index
+  - /docs/packages/money
+  - /docs/packages/jobs
+---
+
+**Status:** designed, not scheduled. **Design from:** new. Only the money manager needs it.
+
+## What it is
+
+The money manager shows a person their accounts and spending in one place. This package connects to their bank, imports balances and transactions, and tidies them into something usable.
+
+## Requirements
+
+- The person connects a bank through their bank's own consent screen. We never see their bank password.
+- Connections expire and must be renewed; the person is reminded before that happens.
+- Transactions are imported once even if a sync runs twice, in whole minor units.
+- Categories come from rules first; automatic suggestions are optional and show their reason.
+- Bank tokens are encrypted and never logged.
+
+## Design
+
+- **A provider interface** with one adapter to start (GoCardless Bank Account Data, TrueLayer or Plaid are the candidates; which one is decided on UK bank coverage, price and the licence they operate under).
+- **Sync as a job** in `@repo/jobs`: a daily pull per connection, with backoff, and a clear state when the bank asks the person to reconnect.
+- **De-duplication** by the bank's own transaction id, with a fallback key for banks that do not give a stable one.
+- **Amounts as `Money`**, signs normalised (money out is negative).
+- **Categorisation rules** are data the person edits, applied in order; a transaction keeps which rule matched.
+- **Tokens** are stored encrypted with a key outside the database.
+
+## Trade-offs
+
+- Provider coverage and uptime are outside our control, so the UI must show "last updated" honestly.
+- Automatic categorisation by an AI model would send transaction text to a third party. If it is added, it is opt-in and uses minimal, redacted text.
+
+## Open questions
+
+- **Regulation.** Reading bank accounts is a regulated activity in the UK. Whether you need your own registration or can work under a provider's licence is a legal question to settle before building. I cannot answer it.

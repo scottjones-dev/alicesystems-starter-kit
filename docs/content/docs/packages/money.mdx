@@ -1,0 +1,43 @@
+---
+title: Money
+description: "Exact money maths in whole minor units: add, split, allocate and VAT without losing a penny."
+type: reference
+summary: "Planned, build order 12. A small pure package: a Money value in whole minor units, arithmetic that refuses mixed currencies, exact splitting and allocation, and explicit rounding for VAT and percentages."
+related:
+  - /docs/packages/index
+  - /docs/packages/internationalization
+  - /docs/packages/payments
+---
+
+**Status:** planned, build order 12. **Design from:** new. Neither reference project has it; both leave money to ad hoc `number` maths.
+
+## What it is
+
+`@repo/money` is the one place money arithmetic happens. All four products add, split and tax amounts, and a floating point `0.1 + 0.2` in a till or an invoice is a bug that costs real money.
+
+## Requirements
+
+- Amounts are **whole minor units** (pence, cents) in an integer, never a decimal. Formatting for people stays in `@repo/internationalization` (`formatMoney`).
+- A sum of parts equals the whole: splitting 100.00 three ways must give three amounts that add to exactly 100.00.
+- Different currencies never mix by accident.
+- Rounding is a visible decision, not a side effect: VAT per line and VAT per invoice give different totals, and the platform must choose.
+- Pure and dependency-free, so it runs in the API, web and native.
+
+## Design
+
+- **`Money` is `{ amount: number, currency: string }`**, where `amount` must be a safe integer. Numbers are enough: a safe integer in pence is about 90 trillion pounds, and bigint would make every database and JSON hop awkward.
+- **Operations:** `add`, `subtract`, `negate`, `multiplyBy(integer)`, `compare`, `isZero`, all throwing on a currency mismatch or an unsafe result.
+- **`allocate(total, ratios)`** splits by ratios with the largest remainder method, so nothing is lost; **`split(total, n)`** is the equal case (a pub bill split four ways).
+- **`percentage(amount, rate, rounding)`** and **`vat`** helpers (`addVat`, `removeVat`, `vatOf`) take the rounding mode explicitly (half up, half even, down). Rates are held as exact fractions in basis points (20% is 2000), not floats.
+- **Currency decimals** come from the standard (GBP 2, JPY 0, BHD 3), the same source `formatMoney` uses.
+- **A zod schema** for the `{ amount, currency }` shape, for API bodies and database JSON.
+- **Database storage** is two columns, an integer amount and a three-letter currency with a CHECK, offered as a helper in `@repo/db` when the first table needs it.
+
+## Tests
+
+The properties matter more than examples: for any total and any ratios, the parts sum to the total; negating twice gives the original; adding then subtracting returns the start; VAT added then removed returns the net (within the stated rounding); zero-decimal and three-decimal currencies behave.
+
+## Trade-offs
+
+- No arbitrary precision decimals library. If a product ever prices in fractions of a penny (fuel, bulk ingredients), that needs a unit-price type with more decimals, added then.
+- No currency conversion: exchange rates change, and which rate applies is a business rule per platform.

@@ -1,0 +1,43 @@
+---
+title: API
+description: "The backend service, the only thing that touches the database and storage."
+type: reference
+summary: "A Hono API (apps/api) scaffolded with create-hono: request ids, one error contract, validation, CORS, security headers, health routes and an OpenAPI reference. Features are mounted on this shell as their packages are built."
+related:
+  - /docs/packages/db
+  - /docs/packages/errors
+  - /docs/apps/platform
+---
+
+## What it is
+
+`apps/api` is the Hono backend. The website, the platform app and the native app all call it, and it is the only thing that talks to the database (and, later, storage). It was created with `pnpm create hono` using the `nodejs` template, then fitted into the monorepo.
+
+## Requirements
+
+- One place for the rules: validation, errors, and later who may do what.
+- Every error has the same shape, and every response a request id a user can quote.
+- A bug never leaks its message, stack or cause to a client.
+- A load balancer can tell if an instance is alive and if it can serve (database up).
+- Only the platform app's browser origin may call it with credentials.
+- The documentation of the API is generated from the code, so it cannot drift, and is not published in production.
+
+## Design
+
+- **A shell, then features.** `createApp()` sets up the request id, the error contract, security headers, CORS and a body limit under `/api`. `buildApp()` mounts routes on it. Everything it needs (database check, origin, docs on or off) is passed in, so tests build it with fakes and `index.ts` with the real environment.
+- **One error contract.** `@repo/errors` decides the body. An `AppError` becomes its own status; anything else is a bug and shows a generic 500, with only the error's name logged in production (a message can quote data). Failed validation becomes `VALIDATION_FAILED` listing field **paths only**, never the values sent. Stoker's `onError` and `notFound` are deliberately not used, because they return the real message and stack.
+- **Routes are OpenAPI routes** (`@hono/zod-openapi`), so the document is generated from the same schemas that validate requests, and each route lists the real error body for the errors it can return. A Scalar page renders it, **in development only**.
+- **Liveness and readiness are separate.** `/healthz` never touches the database, so a database outage does not restart healthy instances; `/readyz` does, so traffic stops going to an instance that lost it.
+- **No build step.** Workspace packages export TypeScript source, so the API runs with `tsx`, as starter-kit's does. A production image comes with the hosting step.
+- **Ports in development:** API 9000, platform 3000 (the `WEB_ORIGIN` the API allows), website 3001.
+- **Graceful shutdown.** On SIGTERM the server stops, in-flight requests finish, the database pool closes, and a time limit stops a stuck close from holding up a deploy.
+
+## Trade-offs
+
+- OpenAPI routes cost a little more to write than plain Hono routes. The generated, always-true documentation and the typed error responses are worth it for an API several clients depend on.
+- Running with `tsx` in production is simple but not the smallest or fastest option. Bundling comes later if startup time matters.
+- Errors are logged with `console` for now; `@repo/observability` replaces that with a redacting logger and error reporting.
+
+## Not built yet
+
+Auth routes and the session, the notifications bridge (`/api/novu`), rate limiting, background jobs, and the routes of each product. They arrive with their packages.

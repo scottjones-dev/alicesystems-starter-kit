@@ -1,0 +1,45 @@
+---
+title: Native app
+description: "The Expo app for phones and tablets."
+type: reference
+summary: "An Expo SDK 57 app (apps/native) scaffolded with create-expo-app and Expo Router, reduced to a blank app. One screen today; sign-in, data and push arrive with their packages."
+related:
+  - /docs/apps/api
+  - /docs/apps/platform
+  - /docs/packages/config
+---
+
+## What it is
+
+`apps/native` is the iOS and Android app. It was created with `pnpm create expo-app` (Expo SDK 57, the `default` template with Expo Router), then reduced to a blank app with Expo's own `reset-project` script and fitted into the monorepo.
+
+The folder is `native`, not `mobile`: it also runs on tablets and till hardware, and "native" is what distinguishes it from the responsive web apps.
+
+## Requirements
+
+- Works on phones and tablets for field service, nursery staff and the pub till.
+- Later: keeps working without a connection (see the `sync` package), with the data it holds scoped to what that person needs.
+- Talks to the API for everything; it never connects to the database.
+- The product name, link scheme and colours come from `@repo/config`, never typed into the app.
+- Dependencies stay compatible with the Expo SDK.
+
+## Design
+
+- **Expo Router** gives file-based screens under `src/app`, with deep links using the scheme from `@repo/config`.
+- **Dependencies are installed through Expo** (`expo install`), so versions match SDK 57, and checked with `expo-doctor`, which passes.
+- **`app.json` and the config stay in step by a test.** `app.json` is plain JSON that Expo reads, so it cannot import `@repo/config`; a test compares the name, slug, scheme and splash colour.
+- **Pnpm and Metro work together.** Expo 57 configures Metro for monorepos and symlinked packages itself; a bundle for Android resolves `@repo/config` from the workspace with no Metro settings for the workspace itself (the Metro config only adds NativeWind).
+- **The repo owns lint and TypeScript.** The scaffold's own settings that would fight Biome and pin another TypeScript were removed; `tsconfig.json` extends the shared Expo preset.
+- **Styling is NativeWind 5**, Tailwind classes through `className` with the same semantic colour names as the website (`bg-background`, `text-foreground`, `bg-primary`). `global.css` imports the generated `@repo/config/native.css`, and a `ThemeProvider` swaps in the light or dark values to follow the device, with light as the default. Metro keeps the colour variables out of build-time inlining so that switch works at runtime.
+- **NativeWind 5 is a release candidate**, so it, `react-native-css`, Tailwind 4.1.12 and `lightningcss` 1.30.1 are pinned exactly together, and `lightningcss` is also a workspace override because other versions fail to read `global.css`. They are bumped together, deliberately.
+
+## Trade-offs
+
+- A native app has its own build and release path (EAS, app stores) separate from the web apps. That is the price of offline work and device features.
+- Web and native share colour tokens and logic packages, not components, so screens are written twice.
+- Expo's placeholder icons and splash image are still in place.
+- A release candidate can change before 1.0. The pins and the tests around the wiring are there so a change shows up as a failing test, not a blank screen.
+
+## Not built yet
+
+Sign-in, the API client (`EXPO_PUBLIC_API_URL`), push notifications, the offline data layer, and builds with EAS. It has been bundled and checked, but not run on an emulator or a device.

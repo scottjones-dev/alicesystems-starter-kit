@@ -1,15 +1,15 @@
 import { createGetUrl } from "fumadocs-core/source";
 
-export const appName = "My App";
+export const appName = "StarterKit Docs";
 export const docsRoute = "/docs";
 export const docsImageRoute = "/og/docs";
 export const docsContentRoute = "/llms.mdx/docs";
 
-// fill this with your actual GitHub info, for example:
+// Used for the GitHub link in the docs nav. Update when the repo has a home.
 export const gitConfig = {
   branch: "main",
-  repo: "fumadocs",
-  user: "fuma-nama",
+  repo: "starter-kit",
+  user: "scottjones-dev",
 };
 
 const getContentUrl = createGetUrl(docsContentRoute);

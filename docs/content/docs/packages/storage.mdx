@@ -1,0 +1,46 @@
+---
+title: Storage
+description: "Private file storage (photos, receipts, PDFs) behind a small provider interface, with presigned uploads."
+type: reference
+summary: "Planned, build order 18 (last). Any S3-compatible store, uploads that go straight from the client to the bucket, server-made keys, and checks after upload."
+related:
+  - /docs/packages/index
+  - /docs/packages/documents
+  - /docs/infra/storage
+---
+
+**Status:** planned, build order 18, last. **Design from:** starter-kit. next-forge only re-exports Vercel Blob, so there is nothing to borrow from it.
+
+## What it is
+
+`@repo/storage` is how photos (nursery diaries, field job photos), receipts, signatures and generated PDFs are stored and fetched. It works with anything that speaks the S3 API: AWS S3, Cloudflare R2, MinIO, and a local emulator in development.
+
+## Requirements
+
+- **The API never carries the file.** It authorises and presigns; the client uploads directly to the bucket, so large photos do not load the API and storage scales by itself.
+- The bucket is **private**. Reads go through short-lived presigned URLs.
+- Object keys are **made by the server**, never from client input, and each owner has its own prefix, so one tenant can never name another's file.
+- A client can claim any size or type, so the server checks the stored object before accepting it.
+- **Photos of children and job sites carry location data** in their EXIF metadata. It must be removed.
+- When a person or record is erased, its files are erased too.
+- Browsers and Expo never bundle the AWS SDK.
+
+## Design
+
+- **Three subpaths:** `shared` (limits, allowed types, zod schemas, the `StorageProvider` type), `server` (the S3 provider, key building, bucket setup with CORS and lifecycle rules) and `client` (`validateFile`, `uploadToPresignedUrl`).
+- **Presigned PUTs sign the content type and length**, so the client cannot upload something else. The API then calls `head` on the object and only then marks the attachment `uploaded`.
+- **Allowed types and size limits are constants** the client checks first, for a friendly message in the user's language, and the server enforces.
+- **Metadata stripping on the server** after upload (an image library), before the file is made available.
+- **A provider interface** (`presignPut`, `presignGet`, `head`, `put`, `delete`), so Azure Blob or another store can be added without touching callers.
+- **The upload status list lives in `shared`**, and `@repo/db` imports it for the attachments table's CHECK, so code and database cannot disagree.
+- **Local emulator:** starter-kit used Floci, which does not verify signatures, so tampered or expired URLs can only be tested against a real bucket. I will re-check the emulator choice when this is built.
+
+## Trade-offs
+
+- Presigned URLs are bearer links for their short lifetime. Five minutes is a trade between convenience and exposure.
+- Server-side EXIF stripping adds an image dependency and some CPU on upload. Photos of children are the reason it is not optional.
+
+## Open questions
+
+- Bucket location and the retention periods per kind of file.
+- Antivirus scanning of uploads, which is cheap to add behind the same interface if a product needs it.
