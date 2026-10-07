@@ -1,0 +1,74 @@
+/*
+ * Midnight Sanctuary palette, copied from the starter-kit repo (packages/ui/src/styles/theme.css).
+ * It overrides the template's neutral placeholder theme for this docs site only, so the
+ * other apps keep the shared theme. Loaded after @repo/ui/globals.css so these values win.
+ */
+
+:root {
+  --background: #faf9f7;
+  --foreground: #17181b;
+  --card: #ffffff;
+  --card-foreground: #17181b;
+  --popover: #ffffff;
+  --popover-foreground: #17181b;
+  --primary: #b45309;
+  --primary-foreground: #ffffff;
+  --secondary: #f1efea;
+  --secondary-foreground: #17181b;
+  --muted: #f1efea;
+  --muted-foreground: #5b6472;
+  --accent: #f1efea;
+  --accent-foreground: #17181b;
+  --destructive: #b91c1c;
+  --border: #e3e0d8;
+  --input: #8b8678;
+  --ring: #b45309;
+  --chart-1: #b45309;
+  --chart-2: #0369a1;
+  --chart-3: #047857;
+  --chart-4: #6d28d9;
+  --chart-5: #be123c;
+  --sidebar: #f1efea;
+  --sidebar-foreground: #17181b;
+  --sidebar-primary: #b45309;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8e5dd;
+  --sidebar-accent-foreground: #17181b;
+  --sidebar-border: #e3e0d8;
+  --sidebar-ring: #b45309;
+  --radius: 0.875rem;
+}
+
+.dark {
+  --background: #0f1012;
+  --foreground: #e2e8f0;
+  --card: #17181b;
+  --card-foreground: #e2e8f0;
+  --popover: #17181b;
+  --popover-foreground: #e2e8f0;
+  --primary: #d97706;
+  --primary-foreground: #0f1012;
+  --secondary: #23252a;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1d1f23;
+  --muted-foreground: #94a3b8;
+  --accent: #23252a;
+  --accent-foreground: #e2e8f0;
+  --destructive: #f87171;
+  --border: #2a2c31;
+  --input: #646b78;
+  --ring: #d97706;
+  --chart-1: #d97706;
+  --chart-2: #38bdf8;
+  --chart-3: #34d399;
+  --chart-4: #a78bfa;
+  --chart-5: #fb7185;
+  --sidebar: #17181b;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #d97706;
+  --sidebar-primary-foreground: #0f1012;
+  --sidebar-accent: #23252a;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #2a2c31;
+  --sidebar-ring: #d97706;
+}

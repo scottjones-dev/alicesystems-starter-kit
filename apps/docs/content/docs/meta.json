@@ -1,0 +1,16 @@
+{
+  "title": "Docs",
+  "pages": [
+    "index",
+    "---Using the product---",
+    "website",
+    "web-app",
+    "mobile-app",
+    "---Your account---",
+    "language-and-appearance",
+    "notifications",
+    "privacy",
+    "---Support---",
+    "help"
+  ]
+}

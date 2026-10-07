@@ -1,8 +1,12 @@
 /* The shared theme and Tailwind setup, the same stylesheet the website and platform load. */
 @import "@repo/ui/globals.css";
-/* Makes Fumadocs use that theme's colours instead of its own. */
+/* Starter-kit brand colours for this site, overriding the shared placeholder palette. */
+@import "./brand-theme.css";
+/* Makes Fumadocs use the theme's colours instead of its own. */
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
+/* Styles for the dev-only visual editor at /editor. */
+@import "@fumadocs-editor/ui/styles.css";
 
 html {
   scrollbar-gutter: stable;
