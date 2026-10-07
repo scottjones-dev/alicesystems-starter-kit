@@ -35,7 +35,7 @@ void notify("magic-link", {
 - **One catalog** (`events.ts`): each notification is an email template from `@repo/emails` plus its data schema, whether the user may switch it off (`critical`), and an optional push message. The workflows, the typed `notify()` and the tests all read it. A test fails if an email template has no event, or the reverse.
 - **Transports** (`transports.ts`) are how a notification leaves, chosen once at startup by `NOTIFICATIONS_TRANSPORT`:
   - `novu`, for staging and production: `notify()` triggers a Novu workflow; Novu calls our **bridge** (`/api/novu`, a signed Hono handler) to render the email with `@repo/emails`, and delivers it through the email integration set up in Novu's dashboard. Novu is the queue and retry layer, so a provider outage never breaks sign-up.
-  - `smtp`, for development: `notify()` renders the email itself and sends it to **Mailpit**, a local inbox at <http://localhost:8025>. No account, works offline.
+  - `smtp`, for development: `notify()` renders the email itself and sends it to **Mailpit**, a local inbox at `http://localhost:8025`. No account, works offline.
   - `log`, for tests: records what would have been sent.
 - **Production only accepts `novu`**, and `novu` needs `NOVU_SECRET_KEY`. `selectTransport` throws at startup otherwise.
 - **Push (Expo)** is a second step in the same workflow for events that define a push message, and `registerDevice` / `unregisterDevice` keep a user's Expo tokens on their Novu subscriber (max 100). No current event sends push, so this is built and tested but unused until a platform adds one.
