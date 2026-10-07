@@ -6,7 +6,7 @@
   "scripts": {
     "build": "storybook build",
     "check-types": "tsc --noEmit",
-    "storybook": "storybook dev -p 6006 --no-open",
+    "storybook": "storybook dev -p 6000 --no-open",
     "test": "vitest run"
   },
   "dependencies": {

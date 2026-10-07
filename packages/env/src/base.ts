@@ -21,7 +21,7 @@ export const keys = defineKeys({
   },
   WEB_ORIGIN: {
     auto: (environment) =>
-      environment === "dev" ? "http://localhost:3000" : undefined,
+      environment === "dev" ? "http://localhost:8000" : undefined,
     description:
       "Origin of the platform app, the signed-in web app (scheme and host, no path). The API allows it through CORS, emails build their footer links from it, and auth allows it for sign-in redirects and passkeys.",
     folder: "/api",

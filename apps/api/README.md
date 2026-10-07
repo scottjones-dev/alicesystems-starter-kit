@@ -43,7 +43,7 @@ pnpm --filter api dev    # http://localhost:9000/api, restarts on changes
 
 `dev` and `start` read the root `.env` and run with `tsx`: workspace packages export TypeScript source, so there is no build step. A production build and image come with the hosting step.
 
-Ports in development: API **9000**, platform app **3000** (`WEB_ORIGIN`, the one browser origin CORS allows), website **3001**.
+Ports in development: API **9000**, platform app **8000** (`WEB_ORIGIN`, the one browser origin CORS allows), website **3000**, template docs **1000**, email preview **5000**, Storybook **6000**, product docs **4000**.
 
 ## Tests
 

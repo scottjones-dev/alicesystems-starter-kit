@@ -13,7 +13,7 @@ One page showing the product name and description from `@repo/config`. It uses t
 ## Run it
 
 ```bash
-pnpm --filter website dev    # http://localhost:3001
+pnpm --filter website dev    # http://localhost:3000
 pnpm --filter website build
 ```
 

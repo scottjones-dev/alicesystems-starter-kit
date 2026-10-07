@@ -23,7 +23,7 @@ related:
 - **Separate from the platform.** The marketing site and the product have different jobs, caches, release timing and security needs, so they are two apps. The cost is two deployments.
 - **Next.js App Router with static pages** wherever possible.
 - **Workspace packages are compiled with the app** through `transpilePackages`, because they ship TypeScript source.
-- **Port 3001** in development (the platform is 3000).
+- **Port 3000** in development (the platform is 8000).
 - The scaffold's own `pnpm-workspace.yaml`, `biome.json` and pinned TypeScript were removed: the repo root owns the workspace, lint and the TypeScript version, and `tsconfig.json` extends `@repo/typescript-config/nextjs.json`.
 
 ## Trade-offs

@@ -5,8 +5,8 @@
   "scripts": {
     "build": "next build",
     "check-types": "next typegen && tsc --noEmit",
-    "dev": "next dev --port 3000",
-    "start": "next start --port 3000"
+    "dev": "next dev --port 8000",
+    "start": "next start --port 8000"
   },
   "dependencies": {
     "@repo/config": "workspace:*",

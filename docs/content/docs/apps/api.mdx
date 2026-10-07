@@ -29,7 +29,7 @@ related:
 - **Routes are OpenAPI routes** (`@hono/zod-openapi`), so the document is generated from the same schemas that validate requests, and each route lists the real error body for the errors it can return. A Scalar page renders it, **in development only**.
 - **Liveness and readiness are separate.** `/healthz` never touches the database, so a database outage does not restart healthy instances; `/readyz` does, so traffic stops going to an instance that lost it.
 - **No build step.** Workspace packages export TypeScript source, so the API runs with `tsx`, as starter-kit's does. A production image comes with the hosting step.
-- **Ports in development:** API 9000, platform 3000 (the `WEB_ORIGIN` the API allows), website 3001.
+- **Ports in development:** API 9000, platform 8000 (the `WEB_ORIGIN` the API allows), website 3000, template docs 1000, product docs 4000, email preview 5000, Storybook 6000.
 - **Graceful shutdown.** On SIGTERM the server stops, in-flight requests finish, the database pool closes, and a time limit stops a stuck close from holding up a deploy.
 
 ## Trade-offs

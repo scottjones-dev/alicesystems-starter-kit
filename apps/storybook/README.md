@@ -9,7 +9,7 @@ Components are easier to build, review and test when you can see each one by its
 ## Run it
 
 ```bash
-pnpm --filter storybook storybook    # http://localhost:6006
+pnpm --filter storybook storybook    # http://localhost:6000
 pnpm --filter storybook build        # static site in storybook-static/
 ```
 

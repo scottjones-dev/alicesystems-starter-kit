@@ -21,7 +21,7 @@ related:
 
 ## Design
 
-- **Its address is `WEB_ORIGIN`.** That is the one browser origin the API allows through CORS with credentials, the base for links in emails, and the origin auth allows for redirects and passkeys. In development it is port 3000.
+- **Its address is `WEB_ORIGIN`.** That is the one browser origin the API allows through CORS with credentials, the base for links in emails, and the origin auth allows for redirects and passkeys. In development it is port 8000.
 - **The platform admin tools** (the SaaS owner's support view) will be routes in this app, behind the admin role and two-factor, rather than a third app. If they outgrow it, they can be split out.
 - **Separate from the website**, so the signed-in app has its own deployment, caching and security headers.
 - **Workspace packages are compiled with the app** through `transpilePackages`.

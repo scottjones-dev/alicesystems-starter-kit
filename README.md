@@ -21,6 +21,8 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `apps/api` | The Hono API: request ids, one error contract, health routes, OpenAPI reference. |
 | `packages/ui` | The web design system: 22 shadcn components on the shared theme, light and dark (`@repo/ui`). |
 | `apps/storybook` | Storybook: every UI component on its own page, in light and dark. |
+| `apps/docs` | The product's user documentation: Fumadocs on the shared theme (port 4000). |
+| `docs/` | The template's own developer documentation (port 1000). |
 | `apps/website` | The public Next.js website. |
 | `apps/platform` | The signed-in Next.js app (its address is `WEB_ORIGIN`). |
 | `apps/native` | The Expo (SDK 57) app for phones and tablets. |

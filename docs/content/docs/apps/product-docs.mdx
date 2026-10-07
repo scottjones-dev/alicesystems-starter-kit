@@ -1,0 +1,36 @@
+---
+title: Product docs
+description: "The user documentation site for a product built on the template."
+type: reference
+summary: "apps/docs, a Fumadocs site on Next.js (port 4000), using the same theme as the website and platform through @repo/ui and @repo/config. Separate from this template documentation, which is the root docs workspace."
+related:
+  - /docs/packages/ui
+  - /docs/apps/website
+---
+
+## What it is
+
+`apps/docs` (workspace `product-docs`) is the help site for the product you build: written in MDX, searchable, with `llms.txt` routes. It was created with `create-fumadocs-app` (Next.js, `src/`). It is **not** this documentation: the template's own developer docs are the root `docs/` workspace, which stays on port 1000.
+
+## Ports in development
+
+| App | Port |
+| --- | --- |
+| template docs (`docs/`) | 1000 |
+| website | 3000 |
+| product docs (`apps/docs`) | 4000 |
+| email preview | 5000 |
+| Storybook | 6000 |
+| platform | 8000 |
+| API | 9000 |
+
+## Design
+
+- **Same theme as the web apps.** Its stylesheet imports `@repo/ui/globals.css` and then Fumadocs' `shadcn.css`, which maps Fumadocs' colours onto the shadcn ones. One colour change in `@repo/config` reaches the website, platform, Storybook and these docs.
+- **Fumadocs CLI and shadcn.** A `components.json` points at `@repo/ui`, so `@fumadocs/cli add` reuses the shared components rather than copying its own.
+- **Fumadocs owns light and dark here**, so the `ThemeProvider` from `@repo/ui` is not mounted (two providers would fight over the class).
+
+## Trade-offs
+
+- Fumadocs' own UI uses Base UI while `@repo/ui` uses Radix. They only share colours and the shadcn component aliases, not markup, so a docs page looks consistent but is not made of the same components.
+- A second Fumadocs app duplicates a little scaffolding (search route, OG route) with the template docs; they are kept separate so the template docs can be deleted from a real product.

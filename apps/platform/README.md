@@ -13,11 +13,11 @@ One page showing the product name, built with the shared components and theme fr
 ## Run it
 
 ```bash
-pnpm --filter platform dev    # http://localhost:3000
+pnpm --filter platform dev    # http://localhost:8000
 pnpm --filter platform build
 ```
 
-Port 3000 is `WEB_ORIGIN` in the environment: the one browser origin the API allows through CORS, and the address emails link back to.
+Port 8000 is `WEB_ORIGIN` in the environment: the one browser origin the API allows through CORS, and the address emails link back to.
 
 ## Tests
 

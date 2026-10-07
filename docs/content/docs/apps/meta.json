@@ -1,4 +1,12 @@
 {
   "title": "Apps",
-  "pages": ["api", "website", "platform", "native", "storybook", "docs"]
+  "pages": [
+    "api",
+    "website",
+    "platform",
+    "native",
+    "storybook",
+    "product-docs",
+    "docs"
+  ]
 }
