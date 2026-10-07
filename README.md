@@ -22,6 +22,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `packages/observability` | Sentry (EU) options and a privacy scrubber, JSON logs shipped to Better Stack, uptime status (`@repo/observability`). |
 | `packages/money` | Exact money maths in whole minor units: split, allocate, VAT with explicit rounding (`@repo/money`). |
 | `packages/audit` | Append-only audit log: typed `record()` of who did what, ids only, Postgres refuses edits (`@repo/audit`). |
+| `packages/jobs` | Background jobs and schedules on a Postgres queue (pg-boss): typed jobs, retries, queued inside a transaction (`@repo/jobs`). |
 | `packages/ui` | The web design system: 22 shadcn components on the shared theme, light and dark (`@repo/ui`). |
 | `apps/storybook` | Storybook: every UI component on its own page, in light and dark. |
 | `apps/docs` | The product's user documentation: Fumadocs on the shared theme (port 4000). |

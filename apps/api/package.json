@@ -16,6 +16,7 @@
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:*",
     "@repo/errors": "workspace:*",
+    "@repo/jobs": "workspace:*",
     "@repo/observability": "workspace:*",
     "@scalar/hono-api-reference": "^0.12.10",
     "@sentry/node": "^11.4.0",

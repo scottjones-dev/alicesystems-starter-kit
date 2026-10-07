@@ -25,6 +25,7 @@ src/
   app.ts            buildApp(): the shell with every route mounted; takes what it needs as options
   keys.ts           PORT (default 9000), defined for @repo/env
   observability.ts  starts Sentry and builds the logger (Better Stack when configured)
+  queue.ts          the background job queue (`@repo/jobs`); jobs/registry.ts lists the jobs
   shutdown.ts       SIGTERM/SIGINT: stop the server, close the database, send the last logs and errors, exit (with a time limit)
   lib/create-app.ts request id, one log line per request, error contract and reporting, security headers, CORS, body limit
   lib/validation-hook.ts  failed validation becomes VALIDATION_FAILED listing field paths only
@@ -60,4 +61,4 @@ Ports in development: API **9000**, platform app **8000** (`WEB_ORIGIN`, the one
 
 ## Depends on / used by
 
-Depends on `hono`, `@hono/node-server`, `@hono/zod-openapi`, `@scalar/hono-api-reference`, `@repo/config`, `@repo/db`, `@repo/env`, `@repo/errors`, `@repo/observability` and `@sentry/node`. Called by the platform app, the website and the native app.
+Depends on `hono`, `@hono/node-server`, `@hono/zod-openapi`, `@scalar/hono-api-reference`, `@repo/config`, `@repo/db`, `@repo/env`, `@repo/errors`, `@repo/jobs`, `@repo/observability` and `@sentry/node`. Called by the platform app, the website and the native app.

@@ -6,7 +6,7 @@ Database layer: Drizzle ORM on PostgreSQL (node-postgres).
 
 Only the API talks to Postgres. This package owns the client, the column helpers, the migrations and the test helper, so the data model lives in one place. The reasoning is in [`docs/content/docs/db.md`](../../docs/content/docs/db.md).
 
-Its first table is `audit_log` (behaviour in [`@repo/audit`](../audit/README.md)); auth's arrive with auth, and each platform adds its own.
+Its tables are `audit_log` (behaviour in [`@repo/audit`](../audit/README.md)) and the queue tables of `@repo/jobs` (the `pgboss` schema, written as a migration); auth's arrive with auth, and each platform adds its own.
 
 ## What's inside
 

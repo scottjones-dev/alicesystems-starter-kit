@@ -55,10 +55,10 @@ export const setupObservability = ({ env, nodeEnv }: SetupOptions) => {
       ]);
     },
     logger,
-    /** Reports a bug to Sentry, tagged with the request id so it can be found from a report. */
-    reportError: (error: unknown, { requestId }: { requestId: string }) => {
+    /** Reports a bug to Sentry with tags (the request id, the job name) so it can be found from a report. */
+    reportError: (error: unknown, tags: Record<string, string>) => {
       withScope((scope) => {
-        scope.setTag("requestId", requestId);
+        scope.setTags(tags);
         captureException(error);
       });
     },

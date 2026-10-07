@@ -29,7 +29,7 @@
     "secrets:seed": "pnpm --filter @repo/env secrets:seed",
     "setup:local": "pnpm --filter @repo/env setup:local",
     "test": "turbo run test",
-    "test:integration": "pnpm --filter @repo/db --filter @repo/audit test:integration",
+    "test:integration": "pnpm --filter @repo/db --filter @repo/audit --filter @repo/jobs test:integration",
     "theme:generate": "pnpm --filter @repo/config theme:generate"
   },
   "devDependencies": {

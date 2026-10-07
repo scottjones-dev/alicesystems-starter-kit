@@ -32,6 +32,10 @@ const setup = (
       return Promise.resolve();
     },
     log,
+    stopJobs: () => {
+      order.push("jobs");
+      return Promise.resolve();
+    },
     timeoutMs: TIMEOUT_MS,
   });
   return { exit, log, order, shutdown };
@@ -49,7 +53,7 @@ describe("createShutdown", () => {
   it("stops the server before the database, then exits cleanly", async () => {
     const { exit, order, shutdown } = setup();
     await shutdown("SIGTERM");
-    expect(order).toEqual(["server", "database", "flush"]);
+    expect(order).toEqual(["server", "jobs", "database", "flush"]);
     expect(exit).toHaveBeenCalledExactlyOnceWith(0);
   });
 
@@ -58,8 +62,14 @@ describe("createShutdown", () => {
       closeDatabase: () => Promise.reject(new Error("pool stuck")),
     });
     await shutdown("SIGTERM");
-    expect(order).toEqual(["server", "flush"]);
+    expect(order).toEqual(["server", "jobs", "flush"]);
     expect(exit).toHaveBeenCalledExactlyOnceWith(1);
+  });
+
+  it("lets running jobs finish before the database they use is closed", async () => {
+    const { order, shutdown } = setup();
+    await shutdown("SIGTERM");
+    expect(order.indexOf("jobs")).toBeLessThan(order.indexOf("database"));
   });
 
   it("exits with an error when closing fails", async () => {
@@ -74,7 +84,7 @@ describe("createShutdown", () => {
     const { exit, order, shutdown } = setup();
     await shutdown("SIGTERM");
     await shutdown("SIGINT");
-    expect(order).toEqual(["server", "database", "flush"]);
+    expect(order).toEqual(["server", "jobs", "database", "flush"]);
     expect(exit).toHaveBeenCalledTimes(1);
   });
 

@@ -5,6 +5,8 @@ interface ShutdownDeps {
   /** Sends buffered logs and errors. Last, so the lines about shutting down are sent too. */
   flushObservability: () => Promise<void>;
   log: (message: string) => void;
+  /** Lets running background jobs finish and stops taking new ones. After the server, before the database they use. */
+  stopJobs: () => Promise<void>;
   /** How long to wait before giving up and exiting anyway, so a deploy is never held up. */
   timeoutMs: number;
 }
@@ -20,6 +22,7 @@ export const createShutdown = ({
   exit,
   flushObservability,
   log,
+  stopJobs,
   timeoutMs,
 }: ShutdownDeps) => {
   let started = false;
@@ -40,6 +43,7 @@ export const createShutdown = ({
 
     try {
       await closeServer();
+      await stopJobs();
       await closeDatabase();
       await flushObservability();
       clearTimeout(timer);

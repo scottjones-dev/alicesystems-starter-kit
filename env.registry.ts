@@ -3,6 +3,7 @@ import { keys as analytics } from "./packages/analytics/src/keys";
 import { keys as db } from "./packages/db/src/keys";
 import { keys as base } from "./packages/env/src/base";
 import { keys as internationalization } from "./packages/internationalization/src/keys";
+import { keys as jobs } from "./packages/jobs/src/keys";
 import { keys as notifications } from "./packages/notifications/src/keys";
 import { keys as observability } from "./packages/observability/src/keys";
 
@@ -19,4 +20,5 @@ export const registry = [
   notifications,
   analytics,
   observability,
+  jobs,
 ];

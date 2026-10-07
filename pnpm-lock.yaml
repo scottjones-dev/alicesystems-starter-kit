@@ -239,6 +239,9 @@ importers:
       '@repo/errors':
         specifier: workspace:*
         version: link:../../packages/errors
+      '@repo/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs
       '@repo/observability':
         specifier: workspace:*
         version: link:../../packages/observability
@@ -835,6 +838,46 @@ importers:
       '@types/node':
         specifier: ^26.6.4
         version: 26.6.4
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      vitest:
+        specifier: ^5.0.3
+        version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(jsdom@30.1.2)(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  packages/jobs:
+    dependencies:
+      '@repo/db':
+        specifier: workspace:*
+        version: link:../db
+      '@repo/observability':
+        specifier: workspace:*
+        version: link:../observability
+      drizzle-orm:
+        specifier: ^0.45.3
+        version: 0.45.3(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(pg@8.23.1)
+      pg-boss:
+        specifier: ^12.37.0
+        version: 12.37.0(@opentelemetry/api@1.9.1)
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@repo/env':
+        specifier: workspace:*
+        version: link:../env
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^26.6.4
+        version: 26.6.4
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      pg:
+        specifier: ^8.23.1
+        version: 8.23.1
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
@@ -6407,6 +6450,10 @@ packages:
   cose-base@2.2.0:
     resolution: {integrity: sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==}
 
+  cron-parser@5.10.1:
+    resolution: {integrity: sha512-pKRrRagItwk9rGIStcUyMxFX34x56zoX3KDf9HJ4ttwkXIK1qxK63EvXvEDmlxI9AdPJ+Y7TEKRftRlW5eSS7A==}
+    engines: {node: '>=18'}
+
   cross-fetch@4.1.0:
     resolution: {integrity: sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw==}
 
@@ -8300,6 +8347,10 @@ packages:
       '@types/react':
         optional: true
 
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
+    engines: {node: '>=12'}
+
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
@@ -8918,6 +8969,10 @@ packages:
     resolution: {integrity: sha512-EUqp5PhtcsYXs9Fq/lS7s/8zlTrnBqmzZWzFFROrNikMiz+om/YRKMwqN907t+0A1KKyT8jd39CBUbFZmaZmcA==}
     engines: {node: '>=20.0.0'}
 
+  non-error@0.1.0:
+    resolution: {integrity: sha512-TMB1uHiGsHRGv1uYclfhivcnf0/PdFp2pNqRxXjncaAsjYMoisaQJI+SSZCqRq+VliwRTC8tsMQfmrWjDMhkPQ==}
+    engines: {node: '>=20'}
+
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
@@ -9180,6 +9235,13 @@ packages:
 
   peberminta@0.9.0:
     resolution: {integrity: sha512-XIxfHpEuSJbITd1H3EeQwpcZbTLHc+VVr8ANI9t5sit565tsI4/xK3KWTUFE2e6QiangUkh3B0jihzmGnNrRsQ==}
+
+  pg-boss@12.37.0:
+    resolution: {integrity: sha512-3TrhjNRPVQqkLVvrIcgUMBK1rHG3eKINq7kXBvHU+qUdmiiiGJbkIW25rAIUQB715NCpdwAqY3PquhOoSEa1/g==}
+    engines: {node: '>=22.12.0'}
+    hasBin: true
+    peerDependencies:
+      '@opentelemetry/api': ^1.9.0
 
   pg-cloudflare@1.4.1:
     resolution: {integrity: sha512-6PQbsFWZcp9EmJEwy5cGQ2La+AMWpP46lgbb8X+U/XsHIUweYDNCpeuKck5RxL2MdVFi7krbbEi5nX4Zh7JhrQ==}
@@ -9786,6 +9848,9 @@ packages:
     resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
     engines: {node: '>= 18'}
 
+  rrule-temporal@2.2.8:
+    resolution: {integrity: sha512-+wWUe0J02oMh1UWKIt1RTu2H0Cz+gP11O/iweK0MN2UP6JLGeepTUkbSBa90Hxq0W+ywSxM9IlJNouIUdMOwhg==}
+
   run-applescript@7.1.0:
     resolution: {integrity: sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q==}
     engines: {node: '>=18'}
@@ -9859,6 +9924,10 @@ packages:
     resolution: {integrity: sha512-kgmEbLlC22lL7uneeUm9Sjz65rp5cvwYOMTxXbZCmBum4sbVre/lLT3zTV3kwXHJ9/BM8ZS0/GhZe9Cl1t6WyA==}
     engines: {node: '>=20.0'}
     hasBin: true
+
+  serialize-error@13.0.2:
+    resolution: {integrity: sha512-G+YKwp9I6IvWMe5RlwqxdmTPIcq/G8HK/sU51gdV1XAJznYkRSTB0ph+zB9AfSxG0fx6xrqYA6i9HeIcHFTXow==}
+    engines: {node: '>=20'}
 
   serialize-error@2.1.0:
     resolution: {integrity: sha512-ghgmKt5o4Tly5yEG/UJp8qTd0AN7Xalw4XBtDEKP655B699qMEtra1WlXeE6WIvdEG481JvRxULKsInq/iNysw==}
@@ -10225,6 +10294,9 @@ packages:
   tar@7.5.22:
     resolution: {integrity: sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==}
     engines: {node: '>=18'}
+
+  temporal-spec@1.0.1:
+    resolution: {integrity: sha512-wxVoanmDeavXie1vu2JaQ3WIc3JZnWAOYFBsJyATaVsXsycKYUflGsyBmrRSnoCpZJpwPyr38VpgSUlQ8CbFxg==}
 
   terminal-link@2.1.1:
     resolution: {integrity: sha512-un0FmiRUQNr5PJqy9kP7c40F5BOfpGlYTrxonDChEZB7pzZxRNp/bt+ymiy9/npwXya9KH99nJ/GXFIiUkYGFQ==}
@@ -16666,6 +16738,10 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
+  cron-parser@5.10.1:
+    dependencies:
+      luxon: 3.7.2
+
   cross-fetch@4.1.0:
     dependencies:
       node-fetch: 2.7.0
@@ -18785,6 +18861,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
+  luxon@3.7.2: {}
+
   lz-string@1.5.0: {}
 
   magic-string@0.30.21:
@@ -20060,6 +20138,8 @@ snapshots:
 
   nodemailer@10.0.15: {}
 
+  non-error@0.1.0: {}
+
   normalize-path@3.0.0: {}
 
   novu@2.21.3(@types/node@26.6.4)(@types/react@19.3.0)(debug@4.4.3(supports-color@8.1.1))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.3.8(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-devtools-core@6.1.5)(supports-color@8.1.1):
@@ -20455,6 +20535,16 @@ snapshots:
   pathval@2.0.1: {}
 
   peberminta@0.9.0: {}
+
+  pg-boss@12.37.0(@opentelemetry/api@1.9.1):
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      cron-parser: 5.10.1
+      pg: 8.23.1
+      rrule-temporal: 2.2.8
+      serialize-error: 13.0.2
+    transitivePeerDependencies:
+      - pg-native
 
   pg-cloudflare@1.4.1:
     optional: true
@@ -21465,6 +21555,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  rrule-temporal@2.2.8:
+    dependencies:
+      temporal-spec: 1.0.1
+
   run-applescript@7.1.0: {}
 
   run-async@2.4.1: {}
@@ -21552,6 +21646,11 @@ snapshots:
       - supports-color
 
   sentry@0.45.0: {}
+
+  serialize-error@13.0.2:
+    dependencies:
+      non-error: 0.1.0
+      type-fest: 5.10.0
 
   serialize-error@2.1.0: {}
 
@@ -22017,6 +22116,8 @@ snapshots:
       minipass: 7.1.3
       minizlib: 3.1.0
       yallist: 5.0.0
+
+  temporal-spec@1.0.1: {}
 
   terminal-link@2.1.1:
     dependencies:

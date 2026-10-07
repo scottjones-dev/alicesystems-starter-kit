@@ -1,0 +1,34 @@
+{
+  "name": "@repo/jobs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./define": "./src/define.ts",
+    "./keys": "./src/keys.ts",
+    "./runtime": "./src/runtime.ts",
+    "./schema-sql": "./src/schema-sql.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "jobs:schema-sql": "tsx src/scripts/schema-sql.ts",
+    "test": "vitest run --exclude **/*.integration.test.ts",
+    "test:integration": "vitest run integration"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/observability": "workspace:*",
+    "drizzle-orm": "^0.45.3",
+    "pg-boss": "^12.37.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/env": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^26.6.4",
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3"
+  }
+}

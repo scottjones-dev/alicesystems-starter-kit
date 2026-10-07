@@ -2,14 +2,15 @@
 title: Jobs
 description: "Background jobs and schedules: work that must happen later, on a timer, or again after a failure."
 type: reference
-summary: "Planned, build order 14. A typed job definition, enqueue and schedule API on a Postgres-backed queue, so no new service is needed to start."
+summary: "Built, order 14. A typed job definition, enqueue and schedule API over pg-boss, a queue kept in the app's own Postgres: retries, dedupe keys, per-organization fair share, queued inside the caller's transaction. No new service."
 related:
   - /docs/packages/index
   - /docs/packages/db
+  - /docs/packages/audit
   - /docs/infra/redis
 ---
 
-**Status:** planned, build order 14. **Design from:** new. Starter-kit has one cleanup job inside its API app and no queue. next-forge has none.
+**Status:** built, order 14. **Design from:** new. Starter-kit has one cleanup job inside its API app (a script that runs once and exits, scheduled from outside) and no queue. next-forge has none.
 
 ## What it is
 
@@ -24,20 +25,40 @@ related:
 - Runs inside the API process at first and as a separate worker later, with no code change.
 - A fair share per organization, so one tenant's big invoice run cannot starve the rest.
 
+## The choice: what runs the queue
+
+| | pg-boss (Postgres) | BullMQ (Redis) | Trigger.dev |
+| --- | --- | --- | --- |
+| New thing to run | None | A Redis | Their cloud, or a heavy self-host |
+| Queue a job in the same transaction as the change | **Yes** | No | No |
+| Cron, delay, retries with backoff, once-only keys | Yes | Yes | Yes, plus long durable workflows |
+| Where business data goes | Our Postgres | Our Redis | A vendor |
+
+pg-boss, behind a thin API of our own. The deciding point is the transaction: "record the invoice and queue the email" succeeds or fails as one. With a separate queue it needs an outbox pattern on top. A Postgres queue handles thousands of jobs a second, far above a nursery or a pub. BullMQ stays a later option behind the same API if throughput ever demands it (your Redis page is the place), and Trigger.dev is built for long multi-step workflows with a dashboard, which none of the four products need yet.
+
+pg-boss is on version 12 (queues are created explicitly, workers receive batches, schedules support cron and recurrence rules), so everything here was checked against that version, not older write-ups.
+
 ## Design
 
-- **`defineJob(name, schema, handler)`**, **`enqueue(job, payload, options)`** and **`schedule(name, cron)`**, typed from the job's zod schema, in the same style as notification events.
-- **Queue on Postgres** (the pg-boss library): jobs are rows, enqueue joins the caller's transaction, and there is nothing new to host, back up or monitor. This is the System Design Primer's "queue" building block at the smallest size that works.
-- **Redis is not needed yet.** Your docs have a Redis page; a Redis queue (BullMQ) is faster and is the next step if throughput demands it, behind the same API.
-- **Tests use a real Postgres** through `createTestDatabase`, covering retry, backoff, scheduling, idempotency keys and the transactional enqueue.
-- Jobs report to `@repo/observability` and write to the audit log where they change business data.
+- **`defineJob({ name, schema, handler, ... })`**, **`enqueue(job, payload, { transaction, runAfter })`** and the job's own **`schedule`**, typed from the job's zod schema, in the same style as notification events. A job is named `area.what_happens`.
+- **The payload is checked twice**: when queueing (a wrong payload fails where the bug is) and when running (it may have sat in the database since an older version of the code).
+- **Where the code lives.** The framework is `packages/jobs`. The jobs are defined next to the code they belong to and listed once in `apps/api/src/jobs/registry.ts`, because they need the database, notifications and money that the API already wires. There is **no `apps/worker`**: a second deployable adds a workspace and a deploy for nothing today. The API runs the jobs itself (`JOBS_WORKER=true`), and the same code runs as a separate process later by turning that setting off on the API and on in the worker.
+- **The queue's tables are a normal migration.** pg-boss installs its own tables by default, which would need the app to be allowed to create tables. The tables are written into a `@repo/db` migration (`pgboss_schema`), and pg-boss is told not to touch the schema. An integration test fails if the database is not at the schema version the installed pg-boss expects, so an upgrade cannot be forgotten. A role with only table access and execute on the `pgboss` schema could start the queue and create a queue.
+- **Each queue gets the behaviour its job needs.** A scheduled job's queue refuses a second run while one is waiting or running, so a slow job never piles up on itself. A job with a `dedupeKey` allows one waiting job per key. Both are fixed when a queue is created, and a change is refused with a clear message rather than silently ignored.
+- **Fair share per organization.** A job names its group (usually the organization) and at most N jobs of a group run at once **in a process**. pg-boss also offers a limit across processes, but it can be overshot a little when several workers fetch at the same instant (the integration test caught exactly that), so the exact per-process limit is used. With several worker processes the limit multiplies, which is a deliberate, documented trade.
+- **Failures are visible.** Every failed try is logged with the job name and try number and reported to Sentry with those tags; a job that gives up stays in the `failed` state where it can be inspected. There is no dead-letter queue yet.
+- **Shutdown.** The API stops taking jobs, lets running ones finish (seven of its ten seconds), then closes the database and sends the last logs.
+- **Tests use a real Postgres** through `createTestDatabase`, covering retry, backoff, scheduling, dedupe keys, the fair share and the transactional enqueue.
 
 ## Trade-offs
 
 - A Postgres queue is slower than Redis and shares the database's capacity. At the volumes of a nursery or a pub it is far below any limit, and the single database remains one thing to run.
 - At-least-once delivery pushes idempotency onto every job. That is cheaper and safer than pretending exactly-once exists.
+- The fair share is per process (above).
+- Job payloads sit in the database in plain JSON, so they hold ids only, as with audit entries: never a name, an email or a note. The handler looks the person up.
+- The template ships no job of its own: a placeholder that does nothing would only be something to delete. The queue starts empty and adding the first job is one line.
 
-## Open questions
+## Not verified
 
-- pg-boss or a small queue of our own. pg-boss is mature, but I have not yet compared it against writing the few hundred lines ourselves.
-- Where the worker runs in production (inside the API service, or its own).
+- Several worker processes running together, and a worker killed in the middle of a job (that is pg-boss's own tested behaviour; ours is the wiring).
+- Behaviour on a host that scales the API to zero or runs it as a short-lived function: a worker needs a long-running process. If hosting ends up serverless, the worker has to be its own container.
