@@ -17,6 +17,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `packages/emails` | Typed React email templates rendered to HTML and plain text, in the recipient's language (`@repo/emails`). |
 | `packages/notifications` | `notify()` over swappable transports: Novu in production, a local Mailpit inbox in development (`@repo/notifications`). |
 | `infra/mailpit` | Local mail inbox in Docker. |
+| `packages/analytics` | Privacy-first event catalog and rules for PostHog (EU), shared by web and native (`@repo/analytics`). |
 | `apps/` | Deployable apps (web, api, native...). Empty for now. |
 | `packages/` | Shared code used by apps. Empty for now. |
 | `pnpm-workspace.yaml` | Tells pnpm that `apps/*` and `packages/*` are workspaces. |
