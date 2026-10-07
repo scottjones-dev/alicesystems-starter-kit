@@ -1,0 +1,89 @@
+---
+title: Packages
+description: "Every shared package in the template: what exists, what is planned, in what order, and which products need it."
+type: overview
+summary: "The package roadmap: 10 built, 8 planned in a fixed order with auth second last and storage last, 3 designed for later, and what is deliberately not planned."
+related:
+  - /docs/structure
+  - /docs/packages/not-planned
+---
+
+## What this page is
+
+The template is a base for several products: a **money manager**, a **nursery and childcare platform**, a **field service platform** and a **pub POS and management system**. Each product reuses the same packages, so a package earns its place only if at least two of them need it. This page lists every package, in build order, with where its design comes from.
+
+Every package follows the same rules: it lives under `packages/`, keeps its code in `src/`, has a README (what, why, how to use, tests, dependencies), has tests for its logic, reads configuration only through `@repo/env`, and has a plan page here written **before** it is built.
+
+## Built
+
+| # | Package | What it does | Design from |
+| --- | --- | --- | --- |
+| 1 | [`typescript-config`](/docs/packages/typescript-config) | Strict shared `tsconfig` presets | next-forge's pattern, starter-kit's presets |
+| 2 | [`env`](/docs/packages/env) | Typed environment keys, defined once; seeds Infisical, writes the local `.env` and `.env.example` | new, on starter-kit's ideas |
+| 3 | [`errors`](/docs/packages/errors) | Error codes, `AppError`, the JSON error body | starter-kit |
+| 4 | [`db`](/docs/packages/db) | Drizzle on Postgres: client, column helpers, test databases | starter-kit |
+| 5 | [`config`](/docs/packages/config) | App constants and the light and dark theme | starter-kit |
+| 6 | [`internationalization`](/docs/packages/internationalization) | Catalogs in six languages, language choice, formatting | starter-kit, languages from next-forge |
+| 7 | [`emails`](/docs/packages/emails) | Typed email templates, HTML and plain text | starter-kit |
+| 8 | [`notifications`](/docs/packages/notifications) | `notify()` over Novu, SMTP (Mailpit) or a log | starter-kit, with a development transport |
+| 9 | [`analytics`](/docs/packages/analytics) | Privacy-first event catalog and rules for PostHog (EU) | starter-kit, with extensible rules |
+| 10 | [`ui`](/docs/packages/ui) | 22 shadcn web components on the config theme, with Storybook | starter-kit, Storybook from next-forge |
+
+## Planned, in build order
+
+You asked for **auth second last and storage last**. Everything else comes before them, in this order:
+
+| # | Package | What it will do | Design from |
+| --- | --- | --- | --- |
+| 11 | [`observability`](/docs/packages/observability) | Sentry, a configurable privacy scrubber, structured logs | starter-kit, not next-forge's defaults |
+| 12 | [`money`](/docs/packages/money) | Exact money maths in whole minor units: split, VAT, allocate | new |
+| 13 | [`audit`](/docs/packages/audit) | Append-only audit log of who did what | new |
+| 14 | [`jobs`](/docs/packages/jobs) | Background jobs and schedules | new (starter-kit has one cleanup job) |
+| 15 | [`payments`](/docs/packages/payments) | Tenants collecting money: cards and direct debit, webhooks | new |
+| 16 | [`documents`](/docs/packages/documents) | PDF and CSV: invoices, statements, reports | new |
+| 17 | [`auth`](/docs/packages/auth) | Better Auth: organizations, admin, 2FA, passkeys, Expo, Stripe billing | starter-kit, plus organizations from next-forge |
+| 18 | [`storage`](/docs/packages/storage) | Private object storage with presigned uploads | starter-kit |
+
+Packages 11 to 16 are proposals: each gets a comparison of the two reference projects (where they have one) and your sign-off before it is built, as the first ten did.
+
+**A cost of this order.** `audit` and `payments` record which organization an action belongs to, but the organization table arrives with auth. Until then they store the organization as a plain id, and auth's migration adds the foreign keys. If you would rather have a real foreign key from the start, move auth up to just before `audit`.
+
+## Designed now, built with the first product that needs them
+
+| Package | Why it waits | Plan |
+| --- | --- | --- |
+| [`realtime`](/docs/packages/realtime) | Kitchen and bar screens, dispatch boards. Needs the API app first. | Server-sent events over Postgres notifications |
+| [`sync`](/docs/packages/sync) | Offline work for field service and the till. The biggest open design. | A local database with a queue of changes |
+| [`banking`](/docs/packages/banking) | Only the money manager reads bank accounts, and it has regulatory questions. | Open Banking through a licensed provider |
+
+## Which product needs what
+
+"Likely" means the product will probably use it; it is not decided until that product is planned.
+
+| Package | Money manager | Nursery | Field service | Pub POS |
+| --- | --- | --- | --- | --- |
+| `money` | yes | yes (fees, invoices) | yes (quotes, invoices) | yes (VAT, tips, split bills) |
+| `audit` | yes | yes (access to children's records) | yes | yes (voids, refunds) |
+| `jobs` | yes | yes (reminders, invoice runs) | yes | yes (end-of-day reports) |
+| `payments` | no | yes (direct debit) | yes | yes (cards) |
+| `documents` | yes (statements) | yes (invoices, reports) | yes (quotes, job sheets) | yes (Z-reports) |
+| `storage` | likely (receipts) | yes (photos) | yes (job photos, signatures) | likely (menu images) |
+| `realtime` | no | likely | yes (dispatch) | yes (kitchen screens) |
+| `sync` (offline) | no | likely | yes | yes |
+| `banking` | yes | no | no | no |
+
+## How they depend on each other
+
+```txt
+typescript-config   env   errors   config
+        \            |       |       |
+         `-------- db   internationalization
+                     \        |
+                      emails ---- notifications
+                                      |
+      analytics   ui   observability  money   audit   jobs   payments   documents
+                                      |
+                                    auth  ───▶  storage
+```
+
+Everything on the left depends on nothing to its right, so the order above always builds.

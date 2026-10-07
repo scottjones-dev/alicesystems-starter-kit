@@ -1,0 +1,8 @@
+/*
+ * The web apps load Geist through next/font, which sets these two variables. Storybook does
+ * not, so give them a system fallback; the components then render in a sensible font.
+ */
+:root {
+  --font-geist-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-geist-mono: ui-monospace, monospace;
+}

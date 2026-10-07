@@ -1,0 +1,34 @@
+---
+title: Storybook
+description: "Every UI component on its own page, in light and dark."
+type: reference
+summary: "A separate workspace (apps/storybook) running Storybook 10 with React and Vite, showing the 22 components of the UI package on the shared theme, with a light/dark switch, accessibility checks and a test that renders every story."
+related:
+  - /docs/packages/ui
+  - /docs/packages/config
+---
+
+## What it is
+
+`apps/storybook` shows every component in `@repo/ui` by itself, in each of its states, in light and dark. It was set up with `pnpm create storybook` and, like next-forge's, is its own workspace with the stories kept in it.
+
+## Requirements
+
+- See and review a component without logging in or reaching it through a product screen.
+- Both themes, on the real colours from `@repo/config`.
+- Accessibility checked while building, not after.
+- A new component cannot be added without being shown here.
+
+## Design
+
+- **A separate app**, not a folder inside the UI package. The design-system package stays free of Storybook's large dependency set, and Storybook can be built and hosted on its own. The cost is one more workspace.
+- **React with Vite, not Next.js.** Next-forge's Storybook uses the Next.js framework, which needs a Next app just to host it. The components are plain React, so Vite is faster and simpler.
+- **The real theme.** The preview imports `@repo/ui`'s stylesheet, which imports `@repo/config`'s generated one, and a toolbar switch sets the `dark` class on `<html>`, as the web apps' provider does.
+- **Accessibility panel** (axe) on every story.
+- **One story file per component**, titled `ui/<Name>` with automatic docs. A test fails if a component has no story, and renders every story, failing on a crash or a console error.
+
+## Trade-offs
+
+- The tests prove stories render, not that they look right. There are no browser or visual-regression tests (Playwright, Chromatic): they cost a browser download and a long CI step, and can be added when the design settles.
+- Stories duplicate a little knowledge of each component's parts. When a component is updated with the shadcn CLI, its story may need a small change; the render test catches the ones that break.
+- It is not part of `pnpm dev`: it would start another dev server on every run.

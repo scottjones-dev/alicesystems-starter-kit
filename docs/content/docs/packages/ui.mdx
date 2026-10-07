@@ -1,0 +1,45 @@
+---
+title: UI
+description: "The web design system: shadcn components on the config theme. Web only."
+type: reference
+summary: "Built, order 10. 22 shadcn/ui components (Radix) written by its CLI into one shared package, styled by the generated stylesheet from @repo/config, with a light/dark ThemeProvider. Shown in the separate Storybook app. The native app has its own styling."
+related:
+  - /docs/packages/index
+  - /docs/packages/config
+  - /docs/apps/website
+  - /docs/apps/storybook
+---
+
+**Status:** built, order 10. **Design from:** starter-kit (laid out the way shadcn's own monorepo template does it), with next-forge's separate Storybook app.
+
+## What it is
+
+`@repo/ui` is where the website's and the platform's buttons, forms, dialogs and tables live, written once. It is **web only**: the Expo app uses NativeWind styling in `apps/native`, fed by `@repo/config/native.css`.
+
+## Requirements
+
+- The same look everywhere on the web, from one set of colours (`@repo/config`).
+- Components stay updatable with one command, not a hand merge.
+- Light and dark both work, and text stays readable (tested in `@repo/config`).
+- Accessible by default: labels, focus, keyboard.
+
+## Decisions
+
+- **Radix** as the base layer (shadcn's `radix-nova` style). Starter-kit had both Radix and Base UI installed; one is enough and Radix is the established one.
+- **22 components, not 61.** The core set: button, input, label, textarea, select, checkbox, radio-group, switch, field, card, dialog, dropdown-menu, popover, tabs, table, badge, alert, avatar, separator, skeleton, tooltip, sonner. Anything else is one CLI command when a product needs it, and unused components are code to maintain.
+- **The shadcn CLI writes the components** into `packages/ui/src/components`. They are not hand-edited and are excluded from lint for that reason. A change that does not fit as a variant is a decision, not a quick edit.
+- **Colours come from `@repo/config/web.css`**, imported by `globals.css`, which maps every token to a Tailwind colour. Starter-kit copied a theme file into the UI package; importing removes the copy. A test fails if a token in the config is not mapped.
+- **`ThemeProvider`** (next-themes) lives in `providers/`: follows the device, remembers a choice, sets the `dark` class on `<html>`.
+- **Imports through `exports`:** `@repo/ui/components/button`, `@repo/ui/lib/utils`, `@repo/ui/globals.css`.
+- **Storybook is a separate app**, [`apps/storybook`](/docs/apps/storybook), as in next-forge, not a folder in this package.
+- **The apps** (website, platform) hold a `components.json` pointing at this package, because the shadcn CLI reads the app's file and writes into the shared package. They re-export this package's PostCSS config and list it in `transpilePackages`.
+
+## Quirk to know
+
+The shadcn CLI adds a component's libraries to the app it ran from, not the UI package. After adding a component, move any new library into `@repo/ui`'s `package.json` (`pnpm remove` then `pnpm --filter @repo/ui add`). This happened with `sonner`.
+
+## Trade-offs
+
+- Not hand-editing generated components means some restyling needs a new variant. That keeps updates cheap.
+- Two styling systems (web Tailwind, native NativeWind) share only the colour tokens, not components. Sharing components across React and React Native is a bigger project and not worth it here.
+- Excluding the components from lint means style problems in them are not caught by Biome; the CLI's output and the Storybook render tests are the check.

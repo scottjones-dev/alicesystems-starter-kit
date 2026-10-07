@@ -8,7 +8,7 @@ Everything behind a sign-in (the product itself, organization settings, billing)
 
 ## What it does today
 
-One page showing the product name. Sign-in arrives with `@repo/auth`, screens with `@repo/ui`, and data from the [API](../api/README.md).
+One page showing the product name, built with the shared components and theme from [`@repo/ui`](../../packages/ui/README.md). Sign-in arrives with `@repo/auth`, data from the [API](../api/README.md).
 
 ## Run it
 

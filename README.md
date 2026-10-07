@@ -19,6 +19,8 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `infra/mailpit` | Local mail inbox in Docker. |
 | `packages/analytics` | Privacy-first event catalog and rules for PostHog (EU), shared by web and native (`@repo/analytics`). |
 | `apps/api` | The Hono API: request ids, one error contract, health routes, OpenAPI reference. |
+| `packages/ui` | The web design system: 22 shadcn components on the shared theme, light and dark (`@repo/ui`). |
+| `apps/storybook` | Storybook: every UI component on its own page, in light and dark. |
 | `apps/website` | The public Next.js website. |
 | `apps/platform` | The signed-in Next.js app (its address is `WEB_ORIGIN`). |
 | `apps/native` | The Expo (SDK 57) app for phones and tablets. |

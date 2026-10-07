@@ -7,3 +7,6 @@ coverage
 .env.*
 !.env.example
 *.log
+
+*storybook.log
+storybook-static

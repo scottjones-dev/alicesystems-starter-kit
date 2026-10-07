@@ -8,7 +8,7 @@ Visitors need a public home for the product that does not require signing in: wh
 
 ## What it does today
 
-One page showing the product name and description from `@repo/config`. Real pages, the shared components (`@repo/ui`) and analytics arrive with their packages.
+One page showing the product name and description from `@repo/config`. It uses the shared components and theme from [`@repo/ui`](../../packages/ui/README.md) (set up in `src/app/layout.tsx`). Real pages and analytics arrive with their packages.
 
 ## Run it
 

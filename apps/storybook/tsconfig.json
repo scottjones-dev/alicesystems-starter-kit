@@ -1,0 +1,8 @@
+{
+  "extends": "@repo/typescript-config/react-library.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [".storybook", "stories", "test", "*.ts"],
+  "exclude": ["node_modules", "storybook-static"]
+}

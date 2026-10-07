@@ -1,7 +1,8 @@
 import { app } from "@repo/config/app";
+import { ThemeProvider } from "@repo/ui/providers/theme-provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@repo/ui/globals.css";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -21,10 +22,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full font-sans antialiased`}
       lang={app.i18n.defaultLocale}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

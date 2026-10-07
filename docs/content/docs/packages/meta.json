@@ -1,0 +1,32 @@
+{
+  "title": "Packages",
+  "pages": [
+    "index",
+    "---Built---",
+    "typescript-config",
+    "env",
+    "errors",
+    "db",
+    "config",
+    "internationalization",
+    "emails",
+    "notifications",
+    "analytics",
+    "ui",
+    "---Planned, in build order---",
+    "observability",
+    "money",
+    "audit",
+    "jobs",
+    "payments",
+    "documents",
+    "auth",
+    "storage",
+    "---Designed for later---",
+    "realtime",
+    "sync",
+    "banking",
+    "---Left out---",
+    "not-planned"
+  ]
+}
