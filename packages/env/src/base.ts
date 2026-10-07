@@ -23,9 +23,9 @@ export const keys = defineKeys({
     auto: (environment) =>
       environment === "dev" ? "http://localhost:3000" : undefined,
     description:
-      "Origin of the web app (scheme and host, no path). Emails build their links from it; auth allows it for sign-in redirects and passkeys.",
+      "Origin of the platform app, the signed-in web app (scheme and host, no path). The API allows it through CORS, emails build their footer links from it, and auth allows it for sign-in redirects and passkeys.",
     folder: "/api",
-    hint: "The deployed web URL (https://...)",
+    hint: "The deployed platform URL (https://...)",
     schema: z.url(),
   },
 });
