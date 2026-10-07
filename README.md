@@ -21,6 +21,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `apps/api` | The Hono API: request ids, one error contract, health routes, OpenAPI reference. |
 | `apps/website` | The public Next.js website. |
 | `apps/platform` | The signed-in Next.js app (its address is `WEB_ORIGIN`). |
+| `apps/native` | The Expo (SDK 57) app for phones and tablets. |
 | `apps/` | Deployable apps (web, api, native...). Empty for now. |
 | `packages/` | Shared code used by apps. Empty for now. |
 | `pnpm-workspace.yaml` | Tells pnpm that `apps/*` and `packages/*` are workspaces. |
