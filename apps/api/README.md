@@ -24,14 +24,15 @@ src/
   index.ts          starts the server: reads the environment, opens the database, shuts down cleanly
   app.ts            buildApp(): the shell with every route mounted; takes what it needs as options
   keys.ts           PORT (default 9000), defined for @repo/env
-  shutdown.ts       SIGTERM/SIGINT: stop the server, close the database, exit (with a time limit)
-  lib/create-app.ts request id, error contract, security headers, CORS, body limit
+  observability.ts  starts Sentry and builds the logger (Better Stack when configured)
+  shutdown.ts       SIGTERM/SIGINT: stop the server, close the database, send the last logs and errors, exit (with a time limit)
+  lib/create-app.ts request id, one log line per request, error contract and reporting, security headers, CORS, body limit
   lib/validation-hook.ts  failed validation becomes VALIDATION_FAILED listing field paths only
   lib/responses.ts  jsonContent() and errorResponses() for OpenAPI route definitions
   routes/health.ts  the health routes
 ```
 
-Every response carries an `x-request-id` (the caller's, if it sent one), and every error is `{ "error": { "code", "message", "requestId" } }` from `@repo/errors`. A bug shows a generic message; the real one is only logged, and only in development.
+Every response carries an `x-request-id` (the caller's, if it sent one), and every error is `{ "error": { "code", "message", "requestId" } }` from `@repo/errors`. A bug shows a generic message; the real one is only logged in development, and every bug is sent to Sentry (when `SENTRY_DSN` is set) tagged with its request id. Each request writes one JSON log line (method, scrubbed path, status, duration, request id); health probes are written at debug level only. See [`@repo/observability`](../../packages/observability/README.md).
 
 ## Run it
 
@@ -55,8 +56,8 @@ Ports in development: API **9000**, platform app **8000** (`WEB_ORIGIN`, the one
 
 `index.ts` is wiring (environment, sockets, signals), so it has no unit test; it was run against the local Postgres and its routes called by hand.
 
-`pnpm --filter api check-types` for types.
+`src/observability.test.ts` checks the setup: logs go to standard output only, also to Better Stack when both settings are present, and error messages are logged in development only. `pnpm --filter api check-types` for types.
 
 ## Depends on / used by
 
-Depends on `hono`, `@hono/node-server`, `@hono/zod-openapi`, `@scalar/hono-api-reference`, `@repo/config`, `@repo/db`, `@repo/env` and `@repo/errors`. Called by the platform app, the website and the native app.
+Depends on `hono`, `@hono/node-server`, `@hono/zod-openapi`, `@scalar/hono-api-reference`, `@repo/config`, `@repo/db`, `@repo/env`, `@repo/errors`, `@repo/observability` and `@sentry/node`. Called by the platform app, the website and the native app.

@@ -1,0 +1,49 @@
+{
+  "name": "@repo/observability",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./keys": "./src/keys.ts",
+    "./log": "./src/log.ts",
+    "./next/client": "./src/next/client.ts",
+    "./next/config": "./src/next/config.ts",
+    "./next/instrumentation": "./src/next/instrumentation.ts",
+    "./options": "./src/options.ts",
+    "./scrub": "./src/scrub.ts",
+    "./status": "./src/status.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/analytics": "workspace:*",
+    "@repo/env": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@sentry/nextjs": "^11.4.0",
+    "@sentry/node": "^11.4.0",
+    "@sentry/react-native": "~7.11.0",
+    "@types/node": "^26.6.4",
+    "vitest": "^5.0.3"
+  },
+  "peerDependencies": {
+    "@sentry/nextjs": "^11.4.0",
+    "@sentry/node": "^11.4.0",
+    "@sentry/react-native": "~7.11.0"
+  },
+  "peerDependenciesMeta": {
+    "@sentry/nextjs": {
+      "optional": true
+    },
+    "@sentry/node": {
+      "optional": true
+    },
+    "@sentry/react-native": {
+      "optional": true
+    }
+  }
+}

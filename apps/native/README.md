@@ -22,6 +22,10 @@ pnpm --filter native ios      # macOS only
 
 Add Expo-aware packages with `pnpm --filter native exec expo install <package>` so versions match the SDK, not with a plain `pnpm add`. Run `pnpm dlx expo-doctor` from this folder to check dependencies and config.
 
+## Error reporting
+
+`src/lib/observability.ts` starts Sentry with the shared options from [`@repo/observability`](../../packages/observability/README.md) (no replay, screenshots or view hierarchy; personal data scrubbed), and the root layout wraps the app so render errors and crashes are reported. Nothing is sent unless `EXPO_PUBLIC_SENTRY_DSN` is set. Metro uses Sentry's config and the Expo plugin targets the EU region, so release builds can upload source maps (needs `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`). Not run on a device or emulator; the bundle builds with `expo export`.
+
 ## Styling
 
 Tailwind classes through **NativeWind 5** (`className`). The colours are the same ones as the website and emails: `src/global.css` imports `@repo/config/native.css` (generated from `packages/config/src/theme.ts` by `pnpm theme:generate`), and `ThemeProvider` swaps in the light or dark values from the shared theme to follow the device. Use the semantic classes: `bg-background`, `text-foreground`, `text-muted-foreground`, `bg-primary`, `border-border`.
@@ -51,4 +55,4 @@ There are no tests for the screen: it only prints two constants. What was run by
 
 ## Depends on / used by
 
-Depends on `expo`, `expo-router`, `react-native`, `@repo/config`. Nothing depends on it.
+Depends on `expo`, `expo-router`, `react-native`, `@repo/config`, `@repo/observability` and `@sentry/react-native`. Nothing depends on it.

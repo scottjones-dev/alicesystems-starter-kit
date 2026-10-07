@@ -25,8 +25,8 @@ None yet: there is no logic of its own, only a page that prints constants. `pnpm
 
 ## Notes on the scaffold
 
-The same changes as the website: generated `pnpm-workspace.yaml`, `biome.json` and pinned TypeScript removed, `tsconfig.json` extends `@repo/typescript-config/nextjs.json`, `transpilePackages` lists the workspace packages it imports, and `AGENTS.md` and `CLAUDE.md` are kept.
+Error reporting is the same four one-line files as the website (see [`@repo/observability`](../../packages/observability/README.md)); events are tagged `app: platform`. The same changes as the website: generated `pnpm-workspace.yaml`, `biome.json` and pinned TypeScript removed, `tsconfig.json` extends `@repo/typescript-config/nextjs.json`, `transpilePackages` lists the workspace packages it imports, and `AGENTS.md` and `CLAUDE.md` are kept.
 
 ## Depends on / used by
 
-Depends on `next`, `react` and `@repo/config`. Nothing depends on it.
+Depends on `next`, `react`, `@repo/config`, `@repo/ui`, `@repo/observability` and `@sentry/nextjs`. Nothing depends on it.

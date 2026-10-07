@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@repo/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,9 @@
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:*",
     "@repo/errors": "workspace:*",
+    "@repo/observability": "workspace:*",
     "@scalar/hono-api-reference": "^0.12.10",
+    "@sentry/node": "^11.4.0",
     "hono": "^4.13.13",
     "zod": "^4.6.5"
   },

@@ -4,9 +4,11 @@ import { serve } from "@hono/node-server";
 import { app as appConfig } from "@repo/config/app";
 import { closeDb, pingDatabase } from "@repo/db/client";
 import { keys as base } from "@repo/env/base";
+import { keys as observabilityKeys } from "@repo/observability/keys";
 
 import { buildApp } from "./app";
 import { keys } from "./keys";
+import { setupObservability } from "./observability";
 import { createShutdown } from "./shutdown";
 
 /*
@@ -21,17 +23,25 @@ const { NODE_ENV: nodeEnv, WEB_ORIGIN: webOrigin } = base.env();
 const { PORT: port } = keys.env();
 const isProduction = nodeEnv === "production";
 
+// First, so errors thrown while the rest starts up are reported too.
+const { flush, logger, reportError } = setupObservability({
+  env: observabilityKeys.env(),
+  nodeEnv,
+});
+
 const app = buildApp({
   checkDatabase: pingDatabase,
   exposeDocs: !isProduction,
-  isDevelopment: nodeEnv === "development",
+  logger,
+  reportError,
   webOrigin,
 });
 
 const server = serve({ fetch: app.fetch, port }, (info) => {
-  console.log(
-    `${appConfig.name} API listening on http://localhost:${info.port}${appConfig.api.basePath}`
-  );
+  logger.info(`${appConfig.name} API listening`, {
+    path: appConfig.api.basePath,
+    port: info.port,
+  });
 });
 
 const closeServer = async () => {
@@ -47,7 +57,8 @@ const shutdown = createShutdown({
   closeDatabase: closeDb,
   closeServer,
   exit: (code) => process.exit(code),
-  log: (message) => console.log(message),
+  flushObservability: flush,
+  log: (message) => logger.info(message),
   timeoutMs: SHUTDOWN_TIMEOUT_MS,
 });
 

@@ -1,41 +1,62 @@
 ---
 title: Observability
-description: "Error reporting and logs for the API, web and native apps, with a privacy scrubber each platform can extend."
+description: "Error reporting, logs and uptime status for the API, web and native apps, with a privacy scrubber each platform can extend."
 type: reference
-summary: "Planned, build order 11. Sentry (EU) for errors, a scrubber with a generic base list that platforms extend, and structured logs with request ids."
+summary: "Built, order 11. Sentry (EU) for errors, a scrubber with a generic base list that platforms extend, structured JSON logs with request ids shipped to Better Stack, and an uptime status from Better Stack. Wired into the API, website, platform and native app."
 related:
   - /docs/packages/index
   - /docs/packages/errors
+  - /docs/packages/analytics
 ---
 
-**Status:** planned, build order 11. **Design from:** starter-kit's `@repo/errors` Sentry rules, rewritten. next-forge's `observability` is a poor model here: Sentry with Session Replay, local variables in stack traces and console output all switched on, plus BetterStack logs.
+**Status:** built, order 11. **Design from:** starter-kit's `@repo/errors` Sentry rules (rewritten), plus next-forge's per-runtime init split, source-map upload and uptime status. next-forge's *defaults* are not used: it turns on Session Replay, local variables in stack traces and console forwarding, and has no scrubber.
 
 ## What it is
 
-`@repo/observability` is how we find out about real failures without sending personal data anywhere. It shares one set of Sentry options between the API, the website and the native app, and one small structured logger.
+`@repo/observability` is how we find out about real failures without sending personal data anywhere. It holds one set of Sentry options shared by the API, the website, the platform and the native app, a structured logger that ships to Better Stack, and the uptime status read from Better Stack.
 
 ## Requirements
 
 - Errors are reported with a request id, so a user who quotes it can be found.
-- Nothing personal reaches Sentry: no request bodies, cookies, auth headers, one-time links, emails, names, amounts.
-- What counts as sensitive differs per platform (a child's name, a card detail, a till total), so the rules are extensible without editing the package.
-- No replay, screenshots, view hierarchy, profiling or local variables, because each can capture what is on screen or in memory.
-- Logs are structured (one JSON object per line) and carry the request id.
+- Nothing personal reaches Sentry or the logs: no request bodies, cookies, auth headers, one-time links, emails, names, amounts.
+- What counts as sensitive differs per platform (a child's name, a card detail, a till total), so the rules are extended without editing the package.
+- No replay, screenshots, view hierarchy, profiling, local variables or console forwarding, because each can capture what is on screen or in memory.
+- Logs are one JSON object per line and carry the request id.
+- No Sentry DSN or no Better Stack token means that part is simply off, so development and tests need no accounts.
+- Sentry data stays in the EU.
 
 ## Design
 
-- **`baseSentryOptions({ dsn, environment, release })`** returns the options all three apps pass to `Sentry.init`. No DSN means nothing is sent.
-- **The scrubber** (`scrubEvent`, `scrubBreadcrumb`, `scrubUrl`) comes from starter-kit's rules, with two changes: the sensitive-key list is a short generic base (passwords, tokens, cookies, email, phone), and `createScrubber({ extraKeys, secretPaths })` lets a platform add its own words. Starter-kit's list included `child`, `baby`, `note`, `code` and `pin`, which suited a baby diary and also hid harmless keys such as `statusCode`. Tests cover each leak path: bodies, cookies, URLs including percent-encoded paths, and emails inside messages.
-- **URL scrubbing is shared with `@repo/analytics`.** Analytics already has the tested address scrubbing (percent-encoded paths, repeated slashes, tokens in queries and fragments). When this package is built, the shared parts move into one small module that both import, so the tricky logic exists once. That is the second user, which is the point to extract it.
-- **The logger** writes JSON lines with the request id and redacts the same keys. Where logs are shipped is a hosting decision (CloudWatch on AWS per the hosting plan).
-- **No SDK in the scrubber**, so the rules are pure functions and identical in all runtimes.
+- **Where the code lives.** One package, `@repo/observability`, with one import path per job so an app only loads what it uses (`/scrub`, `/options`, `/log`, `/status`, `/keys`, and `/next/*` for the Next.js apps). It contains no Sentry SDK dependency of its own except as an optional peer: each app installs the SDK it uses (`@sentry/node` in the API, `@sentry/nextjs` in the web apps, `@sentry/react-native` in the native app), as with PostHog in `@repo/analytics`.
+- **`baseSentryOptions({ dsn, environment, release, scrubber })`** returns the options every app passes to its own `Sentry.init`. No DSN means nothing is sent. Errors are always sent. Performance tracing is **off**: spans carry full addresses and database text that the scrubber does not cover, so it is turned on only after the scrubber is extended to spans.
+- **The scrubber** (`createScrubber({ extraKeys, secretSections })` giving `scrubEvent`, `scrubBreadcrumb`, `scrubUrl`, `scrubText`, `scrubValue`) comes from starter-kit's rules with three changes:
+  1. The sensitive-key list is a short generic base (passwords, tokens, cookies, authorization, API keys, email, phone, birth date, one-time codes, sessions). Starter-kit's list included `child`, `baby`, `note`, `code` and `pin`, which suited a baby diary and also hid harmless keys such as `statusCode`. A platform adds its own words through `extraKeys`.
+  2. Keys are matched as **whole words** (`apiKey`, `api_key` and `API-KEY` all hit `api` + `key`) rather than as pieces of a word, so `footprint` is not mistaken for `otp`.
+  3. URL scrubbing is not copied. It reuses `@repo/analytics/url`, which already has the tested address scrubbing (percent-encoded paths, repeated slashes, tokens in queries and fragments), so the tricky logic exists once. A separate package for one module was the alternative; analytics is built first, so depending on it costs nothing.
+- **Logs.** `createLogger` writes one JSON line per event to standard output (always), scrubs the fields with the same rules, and, when a Better Stack source token and ingesting host are set, also sends them to Better Stack in batches (flushed every few seconds, when a batch fills, and on shutdown). A failed send is dropped, never retried forever, so logging can never take the API down. Error messages are logged in development only, as the API already did, because a database error can quote a row.
+- **Better Stack for the web apps.** Only the API ships logs. The website and platform keep logging to standard output, because Infisical keys belong to one folder (one runtime) and the web apps' real problems go to Sentry. Shipping web server logs later is the same two keys in the web host's environment.
+- **Uptime status.** `getServiceStatus()` reads the monitors from the Better Stack Uptime API and returns `normal`, `partial`, `degraded` or `unknown` with a link to the status page. It has no markup: the website renders it with `@repo/ui` in its footer, because the theme has no success or warning colours and Tailwind only scans an app's own files.
+- **Sentry in Next.js.** Each web app's `instrumentation.ts` and `instrumentation-client.ts` are one-liners calling the package, so website and platform share one setup. `withObservability(nextConfig)` adds source-map upload to the EU region (needs `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` and `SENTRY_PROJECT` at build; without them the build still works) and deletes the maps from the build output so visitors cannot download them. The tunnel route that hides Sentry traffic from ad blockers is left out: it adds server load, and blocked reports are an acceptable loss.
+- **Edge runtime.** Not used by these apps, so there is no edge init. Add it with the first edge route.
+- **API.** `@sentry/node` starts at the top of `index.ts`. The error handler reports anything that is not an `AppError` (with the request id as a tag) and the request logger records method, scrubbed path, status and duration. Shutdown flushes both Sentry and the logs before exit.
+- **Native.** `@sentry/react-native`, started in the root layout with the same options and the app wrapped for crash reporting. Metro uses Sentry's config and the Expo plugin points at the EU region, so release builds can upload source maps; the upload itself needs a real build (EAS) and is not run here. The app bundles successfully with it.
+- **Environment keys** (all optional): `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `EXPO_PUBLIC_SENTRY_DSN`, the matching `*_SENTRY_ENVIRONMENT`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`, `SENTRY_RELEASE`, `BETTERSTACK_SOURCE_TOKEN`, `BETTERSTACK_INGESTING_HOST`, `BETTERSTACK_UPTIME_TOKEN`, `BETTERSTACK_STATUS_URL`.
 
 ## Trade-offs
 
 - Fail closed: it is better to hide a harmless value than to send a name.
-- With no replay or local variables, debugging some bugs takes more reproduction effort. That is the price of not holding personal data in a third party.
+- With no replay or local variables, some bugs take more reproduction effort. That is the price of not holding personal data in a third party.
+- Whole-word key matching can miss a sensitive name written as one run-together word (`mobilenumber`). Platforms add such words to `extraKeys`, and the base list covers the common spellings.
+- Logs from the web apps are not shipped (see above). Browser errors go to Sentry.
+- The native upload of source maps and the Better Stack and Sentry accounts are not exercised by tests; they need real accounts. The code paths that build requests and options are tested.
+
+## Not verified
+
+- A real event reaching Sentry, a real line reaching Better Stack, and the status read from Better Stack Uptime: all need accounts. The code that builds each request, option and decision is tested; the network calls are tested against fakes.
+- The native app on a device or emulator.
+- The `NEXT_PUBLIC_*` values are not yet read from the root `.env` by the Next apps (they load their own `.env*`), so set them in the app host or the app's own `.env.local` when you want Sentry on in development.
 
 ## Open questions
 
-- Sentry organization region and who owns the account.
-- A log destination, and how long to keep logs.
+- Sentry organization name and who owns the account (needs the EU region at sign-up; the DSN host, `ingest.de.sentry.io`, then keeps data in the EU).
+- How long to keep logs (a Better Stack source setting).

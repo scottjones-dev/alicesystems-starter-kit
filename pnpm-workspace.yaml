@@ -8,6 +8,8 @@ allowBuilds:
   sharp: false
   unrs-resolver: false
   esbuild: true
+  # Downloads the Sentry command line tool that uploads source maps (see @repo/observability).
+  "@sentry/cli": true
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.28'
   - '@expo/config-plugins@57.0.10'

@@ -36,7 +36,7 @@ description: The one error shape every API response uses, and why Sentry privacy
 ## Decisions and trade-offs
 - **Only expected errors are explained.** An `AppError` shows its message; everything else becomes `INTERNAL` with a generic message. `toErrorBody` accepts `unknown`, because JavaScript can throw any value.
 - **`STALE_VERSION` and `UNAVAILABLE` are in the base set** because the platforms we build (field service, POS) sync offline and call payment providers. Each code is a permanent part of every client's contract, so add new ones sparingly.
-- **Sentry privacy rules are not here.** Scrubbing is domain-specific (what counts as sensitive differs between a nursery and a pub), so it will live in a separate `@repo/observability` package with a small generic base list that each platform extends. next-forge's defaults (Session Replay, local variables, console logs sent to Sentry) are deliberately not used.
+- **Sentry privacy rules are not here.** Scrubbing is domain-specific (what counts as sensitive differs between a nursery and a pub), so it lives in the separate [`@repo/observability`](/docs/packages/observability) package with a small generic base list that each platform extends. next-forge's defaults (Session Replay, local variables, console logs sent to Sentry) are deliberately not used.
 - **No HTTP framework code.** Mapping an `AppError` to a response belongs to the API app, not this package, so it works with any framework.
 
 ## Scale

@@ -56,6 +56,26 @@ describe("app.json", () => {
   });
 });
 
+describe("error reporting", () => {
+  it("uploads source maps to Sentry's EU region", () => {
+    const plugin = appJson.expo.plugins.find(
+      (entry) =>
+        Array.isArray(entry) && entry[0] === "@sentry/react-native/expo"
+    );
+    expect(Array.isArray(plugin) && plugin[1].url).toBe(
+      "https://de.sentry.io/"
+    );
+  });
+
+  it("builds the bundle with Sentry's Metro config, so crash reports match source maps", () => {
+    const metro = readFileSync(
+      path.join(import.meta.dirname, "..", "metro.config.js"),
+      "utf-8"
+    );
+    expect(metro).toContain("getSentryExpoConfig");
+  });
+});
+
 describe("NativeWind setup", () => {
   const read = (file: string) =>
     readFileSync(path.join(import.meta.dirname, "..", file), "utf-8");

@@ -19,6 +19,7 @@ A bare pnpm + Turborepo monorepo. It is the base for new platforms (apps and sha
 | `infra/mailpit` | Local mail inbox in Docker. |
 | `packages/analytics` | Privacy-first event catalog and rules for PostHog (EU), shared by web and native (`@repo/analytics`). |
 | `apps/api` | The Hono API: request ids, one error contract, health routes, OpenAPI reference. |
+| `packages/observability` | Sentry (EU) options and a privacy scrubber, JSON logs shipped to Better Stack, uptime status (`@repo/observability`). |
 | `packages/ui` | The web design system: 22 shadcn components on the shared theme, light and dark (`@repo/ui`). |
 | `apps/storybook` | Storybook: every UI component on its own page, in light and dark. |
 | `apps/docs` | The product's user documentation: Fumadocs on the shared theme (port 4000). |

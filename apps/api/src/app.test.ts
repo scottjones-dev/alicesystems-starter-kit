@@ -1,6 +1,7 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { app as appConfig } from "@repo/config/app";
 import { AppError, errorBodySchema } from "@repo/errors/app-error";
+import { createLogger } from "@repo/observability/log";
 import { describe, expect, it, vi } from "vitest";
 
 import { buildApp } from "./app";
@@ -10,19 +11,32 @@ import { jsonContent } from "./lib/responses";
 const WEB_ORIGIN = "https://app.example.com";
 const BASE = appConfig.api.basePath;
 
+/** A logger that keeps its lines, so a test can read what was logged. */
+const captureLogs = (exposeErrorMessages = false) => {
+  const lines: Record<string, unknown>[] = [];
+  const logger = createLogger({
+    exposeErrorMessages,
+    level: "debug",
+    service: "api",
+    write: (line) => lines.push(JSON.parse(line)),
+  });
+  return { lines, logger };
+};
+
 const setup = (
   overrides: { checkDatabase?: () => Promise<void>; exposeDocs?: boolean } = {}
 ) => {
-  const log =
-    vi.fn<(message: string, details: Record<string, string>) => void>();
+  const { lines, logger } = captureLogs();
+  const reportError =
+    vi.fn<(error: unknown, context: { requestId: string }) => void>();
   const app = buildApp({
     checkDatabase: overrides.checkDatabase ?? (() => Promise.resolve()),
     exposeDocs: overrides.exposeDocs ?? true,
-    isDevelopment: false,
-    log,
+    logger,
+    reportError,
     webOrigin: WEB_ORIGIN,
   });
-  return { app, log };
+  return { app, lines, reportError };
 };
 
 describe("health", () => {
@@ -85,7 +99,10 @@ describe("the error contract", () => {
   });
 
   it("turns a thrown AppError into its own status and message", async () => {
-    const app = createApp({ isDevelopment: false, webOrigin: WEB_ORIGIN });
+    const app = createApp({
+      logger: captureLogs().logger,
+      webOrigin: WEB_ORIGIN,
+    });
     app.get("/teapot", () => {
       throw new AppError("FORBIDDEN", "Not for you");
     });
@@ -99,9 +116,8 @@ describe("the error contract", () => {
   });
 
   it("hides the message of a bug, and logs only its name in production", async () => {
-    const log =
-      vi.fn<(message: string, details: Record<string, string>) => void>();
-    const app = createApp({ isDevelopment: false, log, webOrigin: WEB_ORIGIN });
+    const { lines, logger } = captureLogs();
+    const app = createApp({ logger, webOrigin: WEB_ORIGIN });
     app.get("/boom", () => {
       throw new Error("password authentication failed for user postgres");
     });
@@ -110,34 +126,90 @@ describe("the error contract", () => {
     const body = errorBodySchema.parse(await response.json());
     expect(body.error.code).toBe("INTERNAL");
     expect(JSON.stringify(body)).not.toContain("postgres");
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(JSON.stringify(log.mock.calls)).not.toContain("postgres");
+    const errorLines = lines.filter((line) => line.level === "error");
+    expect(errorLines).toHaveLength(1);
+    expect(errorLines[0]).toMatchObject({
+      error: { name: "Error" },
+      requestId: body.error.requestId,
+    });
+    expect(JSON.stringify(lines)).not.toContain("postgres");
   });
 
   it("shows the real message in the log in development", async () => {
-    const log =
-      vi.fn<(message: string, details: Record<string, string>) => void>();
-    const app = createApp({ isDevelopment: true, log, webOrigin: WEB_ORIGIN });
+    const { lines, logger } = captureLogs(true);
+    const app = createApp({ logger, webOrigin: WEB_ORIGIN });
     app.get("/boom", () => {
       throw new Error("something specific");
     });
     await app.request(`${BASE}/boom`);
-    expect(JSON.stringify(log.mock.calls)).toContain("something specific");
+    expect(JSON.stringify(lines)).toContain("something specific");
   });
 
-  it("does not log an AppError: it is expected, not a bug", async () => {
-    const log =
-      vi.fn<(message: string, details: Record<string, string>) => void>();
-    const app = createApp({ isDevelopment: true, log, webOrigin: WEB_ORIGIN });
+  it("reports a bug with its request id, but not an AppError", async () => {
+    const { logger } = captureLogs();
+    const reportError =
+      vi.fn<(error: unknown, context: { requestId: string }) => void>();
+    const app = createApp({ logger, reportError, webOrigin: WEB_ORIGIN });
+    app.get("/boom", () => {
+      throw new Error("bug");
+    });
+    app.get("/known", () => {
+      throw new AppError("CONFLICT", "Already exists");
+    });
+
+    const bug = await app.request(`${BASE}/boom`);
+    await app.request(`${BASE}/known`);
+
+    expect(reportError).toHaveBeenCalledTimes(1);
+    const body = errorBodySchema.parse(await bug.json());
+    expect(reportError).toHaveBeenCalledWith(expect.any(Error), {
+      requestId: body.error.requestId,
+    });
+  });
+
+  it("does not log an AppError as an error: it is expected, not a bug", async () => {
+    const { lines, logger } = captureLogs(true);
+    const app = createApp({ logger, webOrigin: WEB_ORIGIN });
     app.get("/known", () => {
       throw new AppError("CONFLICT", "Already exists");
     });
     await app.request(`${BASE}/known`);
-    expect(log).not.toHaveBeenCalled();
+    expect(lines.filter((line) => line.level === "error")).toHaveLength(0);
+  });
+
+  it("logs one line per request with its id, status and a scrubbed path", async () => {
+    const { lines, logger } = captureLogs();
+    const app = createApp({ logger, webOrigin: WEB_ORIGIN });
+    app.get("/reset-password/:token", (c) => c.json({ ok: true }));
+
+    const response = await app.request(`${BASE}/reset-password/secret-token`);
+
+    const requestLines = lines.filter((line) => line.msg === "request");
+    expect(requestLines).toHaveLength(1);
+    expect(requestLines[0]).toMatchObject({
+      level: "info",
+      method: "GET",
+      path: `${BASE}/reset-password/[Filtered]`,
+      requestId: response.headers.get("x-request-id"),
+      status: 200,
+    });
+    expect(JSON.stringify(lines)).not.toContain("secret-token");
+  });
+
+  it("keeps health probes out of the normal log", async () => {
+    const { app, lines } = setup();
+
+    await app.request(`${BASE}/healthz`);
+
+    expect(lines.filter((line) => line.level === "info")).toHaveLength(0);
+    expect(lines.filter((line) => line.level === "debug")).toHaveLength(1);
   });
 
   it("refuses a body over the limit with the standard error", async () => {
-    const app = createApp({ isDevelopment: false, webOrigin: WEB_ORIGIN });
+    const app = createApp({
+      logger: captureLogs().logger,
+      webOrigin: WEB_ORIGIN,
+    });
     app.post("/echo", (c) => c.text("ok"));
     const big = "x".repeat(1024 * 1024 + 1);
     const response = await app.request(`${BASE}/echo`, {
@@ -165,7 +237,10 @@ describe("validation", () => {
     responses: { 200: jsonContent(z.object({ ok: z.literal(true) }), "ok") },
   });
 
-  const app = createApp({ isDevelopment: false, webOrigin: WEB_ORIGIN });
+  const app = createApp({
+    logger: captureLogs().logger,
+    webOrigin: WEB_ORIGIN,
+  });
   const router = createRouter();
   router.openapi(route, (c) => c.json({ ok: true as const }, 200));
   app.route("/", router);

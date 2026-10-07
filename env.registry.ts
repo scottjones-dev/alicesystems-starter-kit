@@ -4,6 +4,7 @@ import { keys as db } from "./packages/db/src/keys";
 import { keys as base } from "./packages/env/src/base";
 import { keys as internationalization } from "./packages/internationalization/src/keys";
 import { keys as notifications } from "./packages/notifications/src/keys";
+import { keys as observability } from "./packages/observability/src/keys";
 
 /**
  * Every package's and app's environment keys, one line each. The seed, `setup:local` and
@@ -17,4 +18,5 @@ export const registry = [
   internationalization,
   notifications,
   analytics,
+  observability,
 ];
